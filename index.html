@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Ableton Link Test</title>
+    <link rel="stylesheet" type="text/css" href="static/style/bootstrap-4.4.1.min.css" />
+    <script src="static/js/socket.io-1.2.0.min.js"></script>
+    <script src="static/js/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/style/style.css"/>
+</head>
+
+<body>
+
+    Tempo: <span id="tempo"></span><br/>
+    Phase: <span id="phase"></span><br/>
+    Beat: <span id="beat"></span><br/>
+
+
+
+
+
+
+
+
+    <footer>
+        Powered by<br/>
+        <img alt="Ableton Link Logo" src="static/images/Ableton_Link_Badge-Black.png">
+    </footer>
+</body>
+
+
+
+
+<script>
+    $(function () {
+        var socket = io();
+        socket.on('tempo', function(msg){
+            $('#tempo').html(msg);
+        });
+        socket.on('phase', function(msg){
+            $('#phase').html(msg);
+        });
+        socket.on('beat', function(msg){
+            $('#beat').html(msg);
+        });
+    });
+</script>
+
+
+
+</html>

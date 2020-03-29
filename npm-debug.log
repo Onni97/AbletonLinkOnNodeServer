@@ -1,0 +1,47 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/home/bob/.nvm/versions/node/v6.0.0/bin/node',
+1 verbose cli   '/home/bob/.nvm/versions/node/v6.0.0/bin/npm',
+1 verbose cli   'start' ]
+2 info using npm@3.8.6
+3 info using node@v6.0.0
+4 verbose run-script [ 'prestart', 'start', 'poststart' ]
+5 info lifecycle socket-chat-example@0.0.1~prestart: socket-chat-example@0.0.1
+6 silly lifecycle socket-chat-example@0.0.1~prestart: no script for prestart, continuing
+7 info lifecycle socket-chat-example@0.0.1~start: socket-chat-example@0.0.1
+8 verbose lifecycle socket-chat-example@0.0.1~start: unsafe-perm in lifecycle true
+9 verbose lifecycle socket-chat-example@0.0.1~start: PATH: /home/bob/.nvm/versions/node/v6.0.0/lib/node_modules/npm/bin/node-gyp-bin:/mnt/c/Users/Bob/Desktop/AbletonLinkOnNodeServer/node_modules/.bin:/home/bob/.nvm/versions/node/v6.0.0/bin:/home/bob/.nvm/versions/node/v6.0.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/Intel/WiFi/bin/:/mnt/c/Program Files/Common Files/Intel/WirelessCommon/:/mnt/c/Program Files/Apache Software Foundation/Apache Derby 10.15.1.3/bin:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/Dart/dart-sdk/bin:/mnt/c/Program Files (x86)/Brackets/command:/mnt/c/Program Files/CMake/bin:/mnt/c/Users/Bob/AppData/Roaming/nvm:/mnt/c/Program Files/nodejs:/mnt/c/Users/Bob/AppData/Local/Programs/Python/Python37/Scripts/:/mnt/c/Users/Bob/AppData/Local/Programs/Python/Python37/:/mnt/c/Program Files/MySQL/MySQL Shell 8.0/bin/:/mnt/c/Users/Bob/AppData/Roaming/npm:/mnt/c/Users/Bob/AppData/Local/GitHubDesktop/bin:/mnt/c/Program Files/Flutter/bin:/mnt/c/Users/Bob/AppData/Roaming/nvm:/mnt/c/Program Files/nodejs:/snap/bin
+10 verbose lifecycle socket-chat-example@0.0.1~start: CWD: /mnt/c/Users/Bob/Desktop/AbletonLinkOnNodeServer
+11 silly lifecycle socket-chat-example@0.0.1~start: Args: [ '-c', 'node server.js' ]
+12 silly lifecycle socket-chat-example@0.0.1~start: Returned: code: 1  signal: null
+13 info lifecycle socket-chat-example@0.0.1~start: Failed to exec start script
+14 verbose stack Error: socket-chat-example@0.0.1 start: `node server.js`
+14 verbose stack Exit status 1
+14 verbose stack     at EventEmitter.<anonymous> (/home/bob/.nvm/versions/node/v6.0.0/lib/node_modules/npm/lib/utils/lifecycle.js:239:16)
+14 verbose stack     at emitTwo (events.js:106:13)
+14 verbose stack     at EventEmitter.emit (events.js:191:7)
+14 verbose stack     at ChildProcess.<anonymous> (/home/bob/.nvm/versions/node/v6.0.0/lib/node_modules/npm/lib/utils/spawn.js:24:14)
+14 verbose stack     at emitTwo (events.js:106:13)
+14 verbose stack     at ChildProcess.emit (events.js:191:7)
+14 verbose stack     at maybeClose (internal/child_process.js:850:16)
+14 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:215:5)
+15 verbose pkgid socket-chat-example@0.0.1
+16 verbose cwd /mnt/c/Users/Bob/Desktop/AbletonLinkOnNodeServer
+17 error Linux 4.4.0-18362-Microsoft
+18 error argv "/home/bob/.nvm/versions/node/v6.0.0/bin/node" "/home/bob/.nvm/versions/node/v6.0.0/bin/npm" "start"
+19 error node v6.0.0
+20 error npm  v3.8.6
+21 error code ELIFECYCLE
+22 error socket-chat-example@0.0.1 start: `node server.js`
+22 error Exit status 1
+23 error Failed at the socket-chat-example@0.0.1 start script 'node server.js'.
+23 error Make sure you have the latest version of node.js and npm installed.
+23 error If you do, this is most likely a problem with the socket-chat-example package,
+23 error not with npm itself.
+23 error Tell the author that this fails on your system:
+23 error     node server.js
+23 error You can get information on how to open an issue for this project with:
+23 error     npm bugs socket-chat-example
+23 error Or if that isn't available, you can get their info via:
+23 error     npm owner ls socket-chat-example
+23 error There is likely additional logging output above.
+24 verbose exit [ 1, true ]

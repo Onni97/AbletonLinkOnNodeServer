@@ -1,0 +1,14 @@
+{
+  "name": "Ableton Link Web",
+  "description": "Server that provides the tempo of Ableton Link running over the WiFi",
+  "repository": "https://github.com/Onni97/AbletonLinkOnNodeServer",
+  "success_url": "/",
+  "keywords": [
+  ],
+  "scripts": {
+  },
+  "addons": [
+  ],
+  "env": {
+  }
+}

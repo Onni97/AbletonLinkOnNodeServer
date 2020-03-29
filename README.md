@@ -2,13 +2,13 @@
 A Node server that uses the Ableton Link protocol. It serves a page to see the data of the Ableton Link session that is running on the same WiFi
 
 
-##Tested Env
+## Tested Env
 I only tested this on Ubuntu 18.04 running on WSL on Windows 10 and Node.js 6.0.0
 
 **Important:** May not work with newer verion of Node.js! 
 
 
-##Dependencies
+## Dependencies
 * [node-abletonlink](https://github.com/2bbb/node-abletonlink)
     * [Ableton Link](https://github.com/ableton/link)
     * [nbind](https://github.com/charto/nbind)
@@ -16,7 +16,7 @@ I only tested this on Ubuntu 18.04 running on WSL on Windows 10 and Node.js 6.0.
 * [Socket.IO](https://socket.io)
 
 
-##Setup
+## Setup
 Clone the repo
 ```
 git clone https://github.com/Onni97/AbletonLinkOnNodeServer

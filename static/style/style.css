@@ -1,5 +1,5 @@
 body {
-    background-color: #b4b4b4;
+    background-color: #d2d2d2;
     text-align: center;
     margin-bottom: 8em;
 }
@@ -30,7 +30,7 @@ span {
 }
 
 #main {
-    background-color: #d2d2d2;
+    background-color: #e6e6e6;
     width: 50%;
     margin-right: auto;
     margin-left: auto;
@@ -63,8 +63,8 @@ span {
     border-right: 0;
 }
 
-#blink {
-    background-color: #d2d2d2;
+#light {
+    background-color: #e6e6e6;
     margin-top: 3em;
     margin-right: auto;
     margin-left: auto;
@@ -72,14 +72,15 @@ span {
     width: 3em;
     border: 2px solid black;
     border-radius: 50%;
-    transition: background 0.5s;
 }
 
-#blink.active {
+.blink {
+    background-color: #e6e6e6;
+}
+
+.blink.active {
     background-color: greenyellow;
-    transition: background 0s;
 }
-
 
 
 

@@ -5,7 +5,10 @@ A Node server that uses the Ableton Link protocol. It serves a page to see the d
 ## Tested Env
 I only tested this on Ubuntu 18.04 running on WSL on Windows 10 and Node.js 6.0.0
 
-**Important:** May not work with newer verion of Node.js! 
+**Important:** May not work with newer verion of Node.js due to nbind! So before the setup do
+ ```
+nvm install 6
+```
 
 
 ## Dependencies

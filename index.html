@@ -31,7 +31,7 @@
 </div>
 
 
-<div id="blink">
+<div id="light" class="blink">
 </div>
 
 
@@ -44,23 +44,27 @@
 
 <script>
     function blink() {
-        const $blink = $('#blink');
-        $blink.addClass("active");
-        setTimeout(() => $blink.removeClass("active"), 100);
+        const $blink = $('.blink');
+        $blink.css("background-color", "greenyellow");
+        setTimeout(() => $blink.css("background-color", "#e6e6e6"), 100);
     }
 
     $(function () {
         var socket = io();
-        var intBeat = 0;
+        var intBeat = -1;
+        var intPhase = -1;
         socket.on('tempo', function (msg) {
             $('#tempo').html(msg);
         });
         socket.on('phase', function (msg) {
-            $('#phase').html(Math.floor(msg));
+            if (Math.floor(msg) !== intPhase) {
+                $('#phase').html(Math.floor(msg));
+                intPhase = Math.floor(msg);
+            }
         });
         socket.on('beat', function (msg) {
-            $('#beat').html(Math.floor(msg));
             if (Math.floor(msg) !== intBeat) {
+                $('#beat').html(Math.floor(msg));
                 intBeat = Math.floor(msg);
                 blink();
             }

@@ -1,7 +1,7 @@
 {
-    "name": "socket-chat-example",
+    "name": "AbletonLinkOnNodeServer",
     "version": "0.0.1",
-    "description": "my first socket.io app",
+    "description": "A Node server that uses the Ableton Link protocol",
     "dependencies": {
         "express": "^4.15.2",
         "socket.io": "^1.7.3",

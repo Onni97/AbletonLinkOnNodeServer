@@ -2,49 +2,71 @@
 <html lang="en">
 <head>
     <title>Ableton Link Test</title>
-    <link rel="stylesheet" type="text/css" href="static/style/bootstrap-4.4.1.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/style/bootstrap-4.4.1.min.css"/>
     <script src="static/js/socket.io-1.2.0.min.js"></script>
     <script src="static/js/jquery-3.4.1.min.js"></script>
     <link rel="stylesheet" type="text/css" href="static/style/style.css"/>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
 </head>
 
 <body>
 
-    Tempo: <span id="tempo"></span><br/>
-    Phase: <span id="phase"></span><br/>
-    Beat: <span id="beat"></span><br/>
+<div id="main">
+    <div class="row">
+        <div class="col-12">
+            Tempo<br/>
+            <span id="tempo"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            Beat<br/>
+            <span id="beat"></span>
+        </div>
+        <div class="col-6">
+            Phase<br/>
+            <span id="phase"></span>
+        </div>
+    </div>
+</div>
 
 
+<div id="blink">
+</div>
 
 
-
-
-
-
-    <footer>
-        Powered by<br/>
-        <img alt="Ableton Link Logo" src="static/images/Ableton_Link_Badge-Black.png">
-    </footer>
+<footer>
+    Powered by<br/>
+    <img alt="Ableton Link Logo" src="static/images/Ableton_Link_Badge-Black.png">
+</footer>
 </body>
 
 
-
-
 <script>
+    function blink() {
+        const $blink = $('#blink');
+        $blink.addClass("active");
+        setTimeout(() => $blink.removeClass("active"), 100);
+    }
+
     $(function () {
         var socket = io();
-        socket.on('tempo', function(msg){
+        var intBeat = 0;
+        socket.on('tempo', function (msg) {
             $('#tempo').html(msg);
         });
-        socket.on('phase', function(msg){
-            $('#phase').html(msg);
+        socket.on('phase', function (msg) {
+            $('#phase').html(Math.floor(msg));
         });
-        socket.on('beat', function(msg){
-            $('#beat').html(msg);
+        socket.on('beat', function (msg) {
+            $('#beat').html(Math.floor(msg));
+            if (Math.floor(msg) !== intBeat) {
+                intBeat = Math.floor(msg);
+                blink();
+            }
         });
     });
 </script>
-
 
 
 </html>

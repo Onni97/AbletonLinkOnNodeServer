@@ -27,7 +27,7 @@ link.on('tempo', (tempo) => io.emit('tempo', Math.round(tempo)));
 link.on('numPeers', (numPeers) => io.emit('numPeers', numPeers));
 link.on('playState', (playState) => io.emit('playState', playState));
 
-link.startUpdate(10, (beat, phase, bpm) => {
+link.startUpdate(5, (beat, phase, bpm) => {
     io.emit('beat', beat);
     io.emit('phase', phase)
     //console.log("updated", beat, phase, bpm)
@@ -39,7 +39,7 @@ link.startUpdate(10, (beat, phase, bpm) => {
 //setup Socket.IO
 io.on('connection', function(socket){
     //socket.emit("linkEnabled", link.isLinkEnable);
-    socket.emit("tempo", link.bpm);
+    socket.emit("tempo", Math.round(link.bpm));
     socket.emit("numPeers", link.numPeers);
     socket.emit("playStateSync", link.isPlayStateSync);
 });

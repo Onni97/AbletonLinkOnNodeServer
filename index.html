@@ -5,6 +5,8 @@
     <link rel="stylesheet" type="text/css" href="static/style/bootstrap-4.4.1.min.css"/>
     <script src="static/js/socket.io-1.2.0.min.js"></script>
     <script src="static/js/jquery-3.4.1.min.js"></script>
+    <script src="static/js/p5.min.js"></script>
+    <script src="static/js/p5.sound.min.js"></script>
     <link rel="stylesheet" type="text/css" href="static/style/style.css"/>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
 </head>
@@ -43,10 +45,20 @@
 
 
 <script>
+    let mrNoisy = new p5.Noise();
+
+    function setup() {
+        //createCanvas(400, 400);
+        mrNoisy.amp(0.1);
+        mrNoisy.start();
+    }
+
     function blink() {
         const $blink = $('.blink');
-        $blink.css("background-color", "greenyellow");
-        setTimeout(() => $blink.css("background-color", "#e6e6e6"), 100);
+        $blink.addClass("active");
+        mrNoisy.start();
+        setTimeout(() => {$blink.removeClass("active");
+                          mrNoisy.stop();}, 100);
     }
 
     $(function () {

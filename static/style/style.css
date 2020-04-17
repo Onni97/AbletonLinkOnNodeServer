@@ -64,7 +64,6 @@ span {
 }
 
 #light {
-    background-color: #e6e6e6;
     margin-top: 3em;
     margin-right: auto;
     margin-left: auto;
@@ -75,10 +74,10 @@ span {
 }
 
 .blink {
-    background-color: #e6e6e6;
+    background-color: white;
 }
 
-.blink.active {
+.active {
     background-color: greenyellow;
 }
 

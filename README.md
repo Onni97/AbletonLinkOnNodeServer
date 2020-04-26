@@ -32,7 +32,7 @@ npm install -g windows-buil-tools
 ```
 
 ## Dependencies
-* [abletonlink-node-addon](https://github.com/Onni97/abletonlink-node-addon)
+* [abletonlink-addon](https://github.com/Onni97/abletonlink-node-addon)
     * [Ableton Link](https://github.com/ableton/link)
 * [express](https://expressjs.com)
 * [socket.io](https://socket.io)

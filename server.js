@@ -1,54 +1,48 @@
-var express = require('express');
-var app = express();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-const abletonlink = require('abletonlink');
-
-const port = process.env.PORT || 3000;
-
-
-
-
 //setup express
+const express = require('express');
+const app = express();
+const http = require('http').createServer(app);
+
 app.use('/static', express.static(__dirname + '/static'));
 
-app.get('/', function(req, res){
+app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
 
 
 
-//setup ableton link
-const link = new abletonlink();
-link.enable();
+//setup abletonlink-addon
+const AbletonLink = require("abletonlink-addon");
+const link = new AbletonLink();
 
-link.on('tempo', (tempo) => io.emit('tempo', Math.round(tempo)));
-link.on('numPeers', (numPeers) => io.emit('numPeers', numPeers));
-link.on('playState', (playState) => io.emit('playState', playState));
 
-link.startUpdate(5, (beat, phase, bpm) => {
-    io.emit('beat', beat);
-    io.emit('phase', phase)
-    //console.log("updated", beat, phase, bpm)
+
+
+//setup socket.io
+const io = require('socket.io')(http);
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+    socket.emit("tempo", link.getTempo(true));
+    socket.emit("numPeers", link.getNumPeers());
+    socket.emit("startStopSyncEnabled", link.isStartStopSyncEnabled());
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
 });
 
+link.setNumPeersCallback((numPeers) => io.emit('numPeers', numPeers));
+link.setTempoCallback((tempo) => io.emit('tempo', link.getTempo(true)));
+link.setStartStopCallback((startStopState) => io.emit('playState', startStopState));
+
+setInterval(() => {
+    io.emit("beat", link.getBeat());
+    io.emit("phase", link.getPhase());
+}, 5);
 
 
 
-//setup Socket.IO
-io.on('connection', function(socket){
-    //socket.emit("linkEnabled", link.isLinkEnable);
-    socket.emit("tempo", Math.round(link.bpm));
-    socket.emit("numPeers", link.numPeers);
-    socket.emit("playStateSync", link.isPlayStateSync);
-});
-
-
-
-
-//start server
-http.listen(port, function(){
-    console.log('\n');
-    console.log('listening on port ' + port);
+http.listen(3000, () => {
+    console.log('listening on *:3000');
 });

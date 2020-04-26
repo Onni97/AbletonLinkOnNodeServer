@@ -3,7 +3,7 @@
 <head>
     <title>Ableton Link Test</title>
     <link rel="stylesheet" type="text/css" href="static/style/bootstrap-4.4.1.min.css"/>
-    <script src="static/js/socket.io-1.2.0.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="static/js/jquery-3.4.1.min.js"></script>
     <script src="static/js/p5.min.js"></script>
     <script src="static/js/p5.sound.min.js"></script>
@@ -58,7 +58,7 @@
         $blink.addClass("active");
         mrNoisy.start();
         setTimeout(() => {$blink.removeClass("active");
-                          mrNoisy.stop();}, 100);
+            mrNoisy.stop();}, 100);
     }
 
     $(function () {

@@ -1,4 +1,6 @@
 # AbletonLinkOnNodeServer
+### [Working on latency compensation for mobiles]
+
 A Node server that uses the Ableton Link protocol, implemented using [abletonlink-node-addon](https://github.com/Onni97/abletonlink-node-addon).
 
 It serves a page to see the data of the Ableton Link session that is running on the same WiFi.

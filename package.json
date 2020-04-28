@@ -5,6 +5,7 @@
     "dependencies": {
         "abletonlink-addon": "^0.2.1",
         "express": "^4.17.1",
+        "platform": "^1.3.5",
         "socket.io": "^2.3.0"
     },
     "repository": {

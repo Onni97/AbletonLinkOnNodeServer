@@ -24,9 +24,13 @@ const io = require('socket.io')(http);
 
 io.on('connection', (socket) => {
     console.log('a user connected');
-    socket.emit("tempo", link.getTempo(true));
-    socket.emit("numPeers", link.getNumPeers());
-    socket.emit("startStopSyncEnabled", link.isStartStopSyncEnabled());
+
+    socket.on("handshake", (deviceID) => {
+        console.log(deviceID);
+        socket.emit("tempo", link.getTempo(true));
+        socket.emit("numPeers", link.getNumPeers());
+        socket.emit("startStopSyncEnabled", link.isStartStopSyncEnabled());
+    });
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
@@ -41,6 +45,12 @@ setInterval(() => {
     io.emit("phase", link.getPhase());
 }, 5);
 
+
+
+
+let getDeviceLatency = function (deviceID) {
+
+}
 
 
 http.listen(3000, () => {

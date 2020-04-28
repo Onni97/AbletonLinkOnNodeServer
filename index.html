@@ -4,7 +4,7 @@
     <title>Ableton Link Test</title>
     <link rel="stylesheet" type="text/css" href="static/style/bootstrap-4.4.1.min.css"/>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="static/js/jquery-3.4.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="static/js/p5.min.js"></script>
     <script src="static/js/p5.sound.min.js"></script>
     <link rel="stylesheet" type="text/css" href="static/style/style.css"/>
@@ -44,44 +44,49 @@
 </body>
 
 
-<script>
-    let mrNoisy = new p5.Noise();
 
-    function setup() {
-        //createCanvas(400, 400);
-        mrNoisy.amp(0.1);
-        mrNoisy.start();
-    }
+<script type="javascript">
+    window.onload = function() {
+        const socket = io();
 
-    function blink() {
-        const $blink = $('.blink');
-        $blink.addClass("active");
-        mrNoisy.start();
-        setTimeout(() => {$blink.removeClass("active");
-            mrNoisy.stop();}, 100);
-    }
 
-    $(function () {
-        var socket = io();
-        var intBeat = -1;
-        var intPhase = -1;
-        socket.on('tempo', function (msg) {
-            $('#tempo').html(msg);
+        let mrNoisy = new p5.Noise();
+
+        function setup() {
+            //createCanvas(400, 400);
+            mrNoisy.amp(0.1);
+            mrNoisy.start();
+        }
+
+        function blink() {
+            const $blink = $('.blink');
+            $blink.addClass("active");
+            mrNoisy.start();
+            setTimeout(() => {$blink.removeClass("active");
+                mrNoisy.stop();}, 100);
+        }
+
+        $(function () {
+            let intBeat = -1;
+            let intPhase = -1;
+            socket.on('tempo', function (msg) {
+                $('#tempo').html(msg);
+            });
+            socket.on('phase', function (msg) {
+                if (Math.floor(msg) !== intPhase) {
+                    $('#phase').html(Math.floor(msg));
+                    intPhase = Math.floor(msg);
+                }
+            });
+            socket.on('beat', function (msg) {
+                if (Math.floor(msg) !== intBeat) {
+                    $('#beat').html(Math.floor(msg));
+                    intBeat = Math.floor(msg);
+                    blink();
+                }
+            });
         });
-        socket.on('phase', function (msg) {
-            if (Math.floor(msg) !== intPhase) {
-                $('#phase').html(Math.floor(msg));
-                intPhase = Math.floor(msg);
-            }
-        });
-        socket.on('beat', function (msg) {
-            if (Math.floor(msg) !== intBeat) {
-                $('#beat').html(Math.floor(msg));
-                intBeat = Math.floor(msg);
-                blink();
-            }
-        });
-    });
+    };
 </script>
 
 

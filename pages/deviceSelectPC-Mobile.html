@@ -1,0 +1,32 @@
+<div class="row justify-content-center">
+    <div class="col colCard" onclick="clicked('PC')">
+        <div class="card collapsed">
+            <img class="card-img-top" src="https://banner2.cleanpng.com/20180414/fuq/kisspng-imac-computer-icons-desktop-computers-monitors-5ad21ec6060fd8.1982121415237198780248.jpg" alt="Card image cap">
+            <div class="card-body">
+                <h4 class="card-title">PC</h4>
+            </div>
+        </div>
+    </div>
+
+   <div class="col colCard" onclick="clicked('Mobile')">
+       <div class="card collapsed">
+           <img class="card-img-top" src="" alt="Card image cap">
+           <div class="card-body">
+               <h4 class="card-title">Mobile / Tablet</h4>
+           </div>
+       </div>
+   </div>
+</div>
+
+<script type="application/javascript">
+    function clicked(choice) {
+        if (choice === 'PC') {
+            window.location.href = window.location.href + "link"
+        } else {
+            $(".card").hide(300);
+        }
+    }
+</script>
+
+
+

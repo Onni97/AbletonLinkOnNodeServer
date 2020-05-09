@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Link</title>
+    <link rel="stylesheet" type="text/css" href="../static/style/bootstrap-4.4.1.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/style/style.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
+</head>
+<body>
+    <div class="row" style="margin-top: 3em;">
+        <div class="col">
+            <h1>Select your device</h1>
+        </div>
+    </div>
+    <div id="deviceSelectDiv"></div>
+
+</body>
+
+<script type="application/javascript">
+    $.ajax({
+        url: window.location.href + "deviceSelectPC-Mobile",
+        type: 'get',
+        success: function (response) {
+            // Add response in mainPage
+            $('#deviceSelectDiv').html(response);
+        },
+        async: true
+    });
+
+    let changeChoice = function (url) {
+        $.ajax({
+            url: url,
+            type: 'get',
+            success: function (response) {
+                // Add response in mainPage
+                $('#deviceSelectDiv').html(response);
+            },
+            async: true
+        });
+    }
+</script>
+</html>

@@ -5,6 +5,7 @@
     <title>Link</title>
     <link rel="stylesheet" type="text/css" href="../static/style/bootstrap-4.4.1.min.css"/>
     <link rel="stylesheet" type="text/css" href="../static/style/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/style/styleLink.css"/>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="../static/js/p5.min.js"></script>
@@ -38,15 +39,20 @@
 </div>
 
 
-<footer>
-    Powered by<br/>
-    <img alt="Ableton Link Logo" src="../static/images/Ableton_Link_Badge-Black.png">
-</footer>
+<footer></footer>
 </body>
 
 
-
-<script>
+<script type="application/javascript">
+    $.ajax({
+        url: window.location.href.substring(0, window.location.href.length - 4) + "footer",
+        type: 'get',
+        success: function (response) {
+            // Add response in mainPage
+            $('footer').html(response);
+        },
+        async: true
+    });
     window.onload = function () {
         let latency = LATECY_TO_REPLACE;
         console.log(latency);
@@ -63,8 +69,10 @@
             const $blink = $('.blink');
             $blink.addClass("active");
             mrNoisy.start();
-            setTimeout(() => {$blink.removeClass("active");
-                mrNoisy.stop();}, 100);
+            setTimeout(() => {
+                $blink.removeClass("active");
+                mrNoisy.stop();
+            }, 100);
         }
 
 
@@ -92,12 +100,11 @@
             }
         });
         socket.on('handshakeOK', function () {
-            ready = true;   
+            ready = true;
         })
     }
 
 </script>
-
 
 
 </html>

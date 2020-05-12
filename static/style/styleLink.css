@@ -1,0 +1,52 @@
+#main {
+    background-color: #e5e5e5;
+    width: 50%;
+    margin-right: auto;
+    margin-left: auto;
+    font-size: 1.5em;
+    transition: all 0.3ms;
+    margin-top: 5em;
+}
+
+#light {
+    margin-top: 3em;
+    margin-right: auto;
+    margin-left: auto;
+    height: 3em;
+    width: 3em;
+    border: 2px solid black;
+    border-radius: 50%;
+}
+
+.blink {
+    background-color: white;
+}
+
+.active {
+    background-color: greenyellow;
+}
+
+
+
+
+
+@media screen and (max-width: 1550px) {
+    #main {
+        width: 75%;
+    }
+}
+
+@media screen and (max-width: 1100px) {
+    #main {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    #main {
+        width: 100%;
+        border-radius: 0;
+        border-right: 0;
+        border-left: 0;
+    }
+}

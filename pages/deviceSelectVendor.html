@@ -1,0 +1,29 @@
+<div class="row justify-content-center">
+    TO_REPLACE
+</div>
+
+
+
+
+<script type="application/javascript">
+    $(document).ready(function () {
+        fixPreviousColCardDimensions();
+        setTimeout(function () {
+            $('.card').removeAttr('style');
+            setTimeout(function () {
+                removefixedColCardDimensions();
+            }, 300);
+        }, 10);
+
+    });
+
+    function clicked(choice) {
+        device.vendor = choice;
+        fixColCardDimensions();
+        $('.card').css({
+            'height': '0',
+            'width': '0'
+        });
+        setTimeout(function () {changeChoice(window.location.href + "deviceSelectModel&")}, 300);
+    }
+</script>

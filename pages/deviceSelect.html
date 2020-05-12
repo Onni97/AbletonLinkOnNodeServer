@@ -5,20 +5,43 @@
     <title>Link</title>
     <link rel="stylesheet" type="text/css" href="../static/style/bootstrap-4.4.1.min.css"/>
     <link rel="stylesheet" type="text/css" href="../static/style/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/style/styleDeviceSelect.css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
 </head>
 <body>
-    <div class="row" style="margin-top: 3em;">
-        <div class="col">
-            <h1>Select your device</h1>
-        </div>
-    </div>
-    <div id="deviceSelectDiv"></div>
 
+<div id="titleRow" class="row">
+    <div class="col">
+        <h1>Select your device</h1>
+    </div>
+</div>
+<div id="deviceSelectDiv"></div>
+
+
+<footer></footer>
 </body>
 
 <script type="application/javascript">
+    let device = {
+        "isPC": true,
+        "vendor": null,
+        "model": null,
+        "version": null
+    }
+
+    //get the footer
+    $.ajax({
+        url: window.location.href + "footer",
+        type: 'get',
+        success: function (response) {
+            // Add response in mainPage
+            $('footer').html(response);
+        },
+        async: true
+    });
+
+    //set the initial page
     $.ajax({
         url: window.location.href + "deviceSelectPC-Mobile",
         type: 'get',
@@ -29,7 +52,8 @@
         async: true
     });
 
-    let changeChoice = function (url) {
+    //function to change choices
+    let changeChoice = function (url, ) {
         $.ajax({
             url: url,
             type: 'get',
@@ -39,6 +63,31 @@
             },
             async: true
         });
+    }
+
+    let height;
+    let width;
+    //function to set the col dimensions for the collapse effect
+    let fixColCardDimensions = function () {
+        $('.colCard').each(function () {
+            height = $(this).height();
+            width = $(this).width();
+            $(this).css('min-height', height);
+            $(this).css('min-width', width);
+        });
+    }
+
+    //function to use the previous col dimensions for the expand effect
+    let fixPreviousColCardDimensions = function () {
+        $('.colCard').each(function () {
+            $(this).css('min-height', height);
+            $(this).css('min-width', width);
+        });
+    }
+
+    //function to remove the fixed dimensions
+    let removefixedColCardDimensions = function () {
+        $('.colCard').removeAttr("style");
     }
 </script>
 </html>

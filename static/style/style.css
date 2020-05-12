@@ -1,5 +1,5 @@
 body {
-    background-color: #e2e1e0;
+    background-color: #f3f2f2;
     text-align: center;
     margin-bottom: 8em;
 }
@@ -19,98 +19,9 @@ footer {
 
 footer > img {
     margin-top: 0.2em;
-    height: 5em;
+    height: 3em;
 }
 
 .row {
     margin: 0;
-}
-
-
-
-
-
-
-#main {
-    background-color: #e5e5e5;
-    width: 50%;
-    margin-right: auto;
-    margin-left: auto;
-    font-size: 1.5em;
-    transition: all 0.3ms;
-    margin-top: 5em;
-}
-
-#light {
-    margin-top: 3em;
-    margin-right: auto;
-    margin-left: auto;
-    height: 3em;
-    width: 3em;
-    border: 2px solid black;
-    border-radius: 50%;
-}
-
-.blink {
-    background-color: white;
-}
-
-.active {
-    background-color: greenyellow;
-}
-
-
-
-
-
-
-
-
-
-.card {
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-    width: 20em;
-}
-
-.card:hover {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-}
-
-.card:active {
-    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-
-.card-img-top {
-    height: 10em;
-}
-
-.colCard {
-    max-width: min-content;
-}
-
-
-
-@media screen and (max-width: 1550px) {
-    #main {
-        width: 75%;
-    }
-}
-
-@media screen and (max-width: 1100px) {
-    #main {
-        width: 90%;
-    }
-    .card {
-        width: 10em;
-    }
-}
-
-@media screen and (max-width: 500px) {
-    #main {
-        width: 100%;
-        border-radius: 0;
-        border-right: 0;
-        border-left: 0;
-    }
 }

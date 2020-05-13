@@ -96,7 +96,7 @@ app.post('/setDevice', (req, res) => {
         res.sendStatus(200);
     } else {
         //TODO: controllare se funziona
-        req.session.deviceLatency = deviceLatencies[req.body.vendor][req.body.model][req.body.version]/2;
+        req.session.deviceLatency = deviceLatencies[req.body.vendor][req.body.model][req.body.version]/2000;
         res.sendStatus(200);
     }
 });
@@ -111,7 +111,7 @@ app.get('/link', (req, res) => {
             if (err) {
                 console.log(err);
             } else {
-                let page = data.toString().replace("LATECY_TO_REPLACE", deviceLatency/1000);
+                let page = data.toString().replace("LATECY_TO_REPLACE", deviceLatency);
                 res.send(page);
             }
         });

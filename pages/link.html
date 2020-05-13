@@ -53,56 +53,71 @@
         },
         async: true
     });
-    window.onload = function () {
+
+
+    $( document ).ready(function() {
         let latency = LATECY_TO_REPLACE;
-        console.log(latency);
         //setup sound
         let mrNoisy = new p5.Noise();
+        let sample;
 
         function setup() {
-            //createCanvas(400, 400);
-            mrNoisy.amp(0.1);
-            mrNoisy.start();
+            sample = loadSound('http://localhost:3000/static/sounds/sample.mp3');
         }
 
         function blink() {
             const $blink = $('.blink');
             $blink.addClass("active");
-            mrNoisy.start();
             setTimeout(() => {
                 $blink.removeClass("active");
-                mrNoisy.stop();
             }, 100);
+        }
+
+        function beep() {
+            //if (sample !== undefined)
+            //    sample.play();
+            mrNoisy.start();
+            setTimeout(() => {
+                mrNoisy.stop();
+            }, 50);
         }
 
 
         //setup socket.io
         const socket = io();
         let ready = false;
-        let waitTime = 1000;
         let intBeat = -1;
         let intPhase = -1;
+        let previousBeep = -1;
 
         socket.on('tempo', function (msg) {
             $('#tempo').html(msg);
         });
         socket.on('phase', function (msg) {
-            if (msg !== intPhase) {
-                $('#phase').html(msg);
-                intPhase = msg;
+            if (Math.floor(msg) !== intPhase) {
+                console.log(msg);
+                intPhase = Math.floor(msg);
+                $('#phase').html(intPhase);
+
             }
         });
         socket.on('beat', function (msg) {
-            if (msg !== intBeat) {
-                $('#beat').html(msg);
-                intBeat = msg;
-                blink();
+            if (Math.floor(msg) !== intBeat) {
+                if (intBeat !== -1)
+                    blink();
+                intBeat = Math.floor(msg);
+                $('#beat').html(intBeat);
+
+            }
+            if (msg > previousBeep+1) {
+                previousBeep = Math.floor(msg)-latency;
+                beep();
             }
         });
         socket.on('handshakeOK', function () {
             ready = true;
         })
-    }
+    });
 
 </script>
 

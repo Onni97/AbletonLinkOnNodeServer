@@ -24,7 +24,7 @@
 
 <script type="application/javascript">
     let device = {
-        "isPC": true,
+        "isPC": null,
         "vendor": null,
         "model": null,
         "version": null
@@ -52,42 +52,49 @@
         async: true
     });
 
-    //function to change choices
-    let changeChoice = function (url, ) {
+
+    //functions to change choices
+    let changeSelection = function (url) {
+        $('.card').css({
+            'opacity': '0',
+        });
+        setTimeout(function () {
+            $.ajax({
+                url: url,
+                type: 'get',
+                success: function (response) {
+                    // Add response in mainPage
+                    $('#deviceSelectDiv').html(response);
+                },
+                async: true
+            });
+        }, 300);
+    }
+    let appear = function () {
+        setTimeout(function () {
+            $('.card').removeAttr('style');
+            setTimeout(function () {
+            }, 300);
+        }, 10);
+    }
+
+
+    //function to go on the link page
+    let goOnLink = function () {
         $.ajax({
-            url: url,
-            type: 'get',
-            success: function (response) {
-                // Add response in mainPage
-                $('#deviceSelectDiv').html(response);
+            url: window.location.href + "setDevice",
+            type: 'post',
+            data: {
+                "isPC": device.isPC,
+                "vendor": device.vendor,
+                "model": device.model,
+                "version": device.version
             },
-            async: true
+            success: function (response) {
+                window.location.href = window.location.href + "link";
+            },
+            async: false
         });
-    }
-
-    let height;
-    let width;
-    //function to set the col dimensions for the collapse effect
-    let fixColCardDimensions = function () {
-        $('.colCard').each(function () {
-            height = $(this).height();
-            width = $(this).width();
-            $(this).css('min-height', height);
-            $(this).css('min-width', width);
-        });
-    }
-
-    //function to use the previous col dimensions for the expand effect
-    let fixPreviousColCardDimensions = function () {
-        $('.colCard').each(function () {
-            $(this).css('min-height', height);
-            $(this).css('min-width', width);
-        });
-    }
-
-    //function to remove the fixed dimensions
-    let removefixedColCardDimensions = function () {
-        $('.colCard').removeAttr("style");
     }
 </script>
 </html>

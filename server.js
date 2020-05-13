@@ -3,8 +3,17 @@ const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
 const fs = require('fs');
+const session = require('express-session');
 
 app.use('/static', express.static(__dirname + '/static'));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+app.use(session({
+    'secret': 'hbjsv86sf78vhwebuv73928ubfe8r9fu3ibhnsku2f398',
+    'resave': false,
+    'saveUninitialized': true
+}));
+
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/pages/deviceSelect.html')
@@ -21,9 +30,9 @@ app.get('/deviceSelectVendor', (req, res) => {
         } else {
             let stringToInsert = "";
             let keys = Object.keys(deviceLatencies);
-            keys.forEach(function (item, index) {
+            keys.forEach(function (item) {
                 stringToInsert += '<div class="col colCard d-flex align-items-center">\n' +
-                    '        <div class="card mx-auto" style="height: 0; width: 0" onclick="clicked(\'' + item + '\')">\n' +
+                    '        <div class="card mx-auto" style="opacity: 0" onclick="clicked(\'' + item + '\')">\n' +
                     '            <img class="card-img-top" src="/static/images/' + item + '.svg" alt="Card image cap">\n' +
                     '            <div class="card-body">\n' +
                     '                <h4 class="card-title">' + item + '</h4>\n' +
@@ -38,20 +47,75 @@ app.get('/deviceSelectVendor', (req, res) => {
 });
 
 app.get('/deviceSelectModel', (req, res) => {
-    //TODO: risistemare il codice, in modo che ad ogni selezione si passino i dati e si salvino nella sessione
-});
-
-app.get('/link', (req, res) => {
-    //da impostare la latenza;
-    let latency = 0;
-    fs.readFile(__dirname + '/pages/link.html', function (err, data) {
+    fs.readFile(__dirname + '/pages/deviceSelectModel.html', function (err, data) {
         if (err) {
             console.log(err);
         } else {
-            let page = data.toString().replace("LATECY_TO_REPLACE", latency);
+            let stringToInsert = "";
+            let keys = Object.keys(deviceLatencies[req.query.vendor]);
+            keys.forEach(function (item) {
+                stringToInsert += '<div class="col colCard d-flex align-items-center">\n' +
+                    '        <div class="card noPhoto mx-auto" style="opacity: 0" onclick="clicked(\'' + item + '\')">\n' +
+                    '            <div class="card-body">\n' +
+                    '                <h4 class="card-title">' + item + '</h4>\n' +
+                    '            </div>\n' +
+                    '        </div>\n' +
+                    '    </div>';
+            })
+            let page = data.toString().replace("TO_REPLACE", stringToInsert);
             res.send(page);
         }
     });
+});
+
+app.get('/deviceSelectVersion', (req, res) => {
+    fs.readFile(__dirname + '/pages/deviceSelectVersion.html', function (err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            let stringToInsert = "";
+            let keys = Object.keys(deviceLatencies[req.query.vendor][req.query.model]);
+            keys.forEach(function (item) {
+                stringToInsert += '<div class="col colCard d-flex align-items-center">\n' +
+                    '        <div class="card noPhoto mx-auto" style="opacity: 0" onclick="clicked(\'' + item + '\')">\n' +
+                    '            <div class="card-body">\n' +
+                    '                <h4 class="card-title">' + item + '</h4>\n' +
+                    '            </div>\n' +
+                    '        </div>\n' +
+                    '    </div>';
+            })
+            let page = data.toString().replace("TO_REPLACE", stringToInsert);
+            res.send(page);
+        }
+    });
+});
+
+app.post('/setDevice', (req, res) => {
+    if (req.body.isPC === "true") {
+        req.session.deviceLatency = 0;
+        res.sendStatus(200);
+    } else {
+        //TODO: controllare se funziona
+        req.session.deviceLatency = deviceLatencies[req.body.vendor][req.body.model][req.body.version]/2;
+        res.sendStatus(200);
+    }
+});
+
+
+app.get('/link', (req, res) => {
+    let deviceLatency = req.session.deviceLatency;
+    if (deviceLatency === undefined) {
+        res.redirect("/");
+    } else {
+        fs.readFile(__dirname + '/pages/link.html', function (err, data) {
+            if (err) {
+                console.log(err);
+            } else {
+                let page = data.toString().replace("LATECY_TO_REPLACE", deviceLatency/1000);
+                res.send(page);
+            }
+        });
+    }
 });
 
 app.get('/footer', (req, res) => {
@@ -72,20 +136,17 @@ const link = new AbletonLink();
 const io = require('socket.io')(http);
 
 io.on('connection', (socket) => {
-    //console.log('A user connected');
     socket.emit("numPeers", link.getNumPeers());
     socket.emit("tempo", link.getTempo(true));
     socket.emit("startStopSyncEnabled", link.isStartStopSyncEnabled());
-    socket.emit("beat", link.getBeat(true));
-    socket.emit("phase", link.getPhase(true));
-    socket.emit("latency", getDeviceLatency());
+    socket.emit("beat", link.getBeat());
+    socket.emit("phase", link.getPhase());
     socket.emit("handshakeOK");
 
     socket.on("print", (msg) => {
         console.log(msg);
     })
     socket.on('disconnect', () => {
-        //console.log('A user disconnected');
     });
 });
 
@@ -94,14 +155,9 @@ link.setTempoCallback((tempo) => io.emit('tempo', link.getTempo(true)));
 link.setStartStopCallback((startStopState) => io.emit('playState', startStopState));
 
 setInterval(() => {
-    io.emit("beat", link.getBeat(true));
-    io.emit("phase", link.getPhase(true));
+    io.emit("beat", link.getBeat());
+    io.emit("phase", link.getPhase());
 }, 5);
-
-
-let getDeviceLatency = function (deviceID) {
-
-}
 
 
 //start listening

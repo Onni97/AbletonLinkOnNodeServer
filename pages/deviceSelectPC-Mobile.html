@@ -21,15 +21,11 @@
 <script type="application/javascript">
     function clicked(choice) {
         if (choice === 'PC') {
-            window.location.href = window.location.href + "link";
+            device.isPC = true;
+            goOnLink();
         } else {
             device.isPC = false;
-            fixColCardDimensions();
-            $('.card').css({
-                'height': '0',
-                'width': '0'
-            });
-            setTimeout(function () {changeChoice(window.location.href + "deviceSelectVendor")}, 300);
+            changeSelection(window.location.href + "deviceSelectVendor");
         }
     }
 </script>

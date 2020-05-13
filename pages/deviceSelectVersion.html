@@ -11,7 +11,7 @@
     });
 
     function clicked(choice) {
-        device.model = choice;
-        changeSelection(window.location.href + "deviceSelectVersion?vendor=" + device.vendor + "&model=" + choice);
+        device.version = choice;
+        goOnLink();
     }
 </script>

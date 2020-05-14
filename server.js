@@ -135,14 +135,27 @@ const link = new AbletonLink();
 //setup socket.io
 const io = require('socket.io')(http);
 
+let latencyCompensation = true;
 io.on('connection', (socket) => {
     socket.emit("numPeers", link.getNumPeers());
     socket.emit("tempo", link.getTempo(true));
     socket.emit("startStopSyncEnabled", link.isStartStopSyncEnabled());
     socket.emit("beat", link.getBeat());
     socket.emit("phase", link.getPhase());
+    if (latencyCompensation === true)
+        socket.emit("enableLatencyCompensation");
+    else
+        socket.emit("disableLatencyCompensation");
     socket.emit("handshakeOK");
 
+    socket.on("disableLatencyCompensation", () => {
+        latencyCompensation = false;
+        io.emit("disableLatencyCompensation");
+    });
+    socket.on("enableLatencyCompensation", () => {
+        latencyCompensation = true;
+        io.emit("enableLatencyCompensation");
+    });
     socket.on("print", (msg) => {
         console.log(msg);
     })
@@ -157,7 +170,9 @@ link.setStartStopCallback((startStopState) => io.emit('playState', startStopStat
 setInterval(() => {
     io.emit("beat", link.getBeat());
     io.emit("phase", link.getPhase());
-}, 5);
+}, 7);
+
+
 
 
 //start listening

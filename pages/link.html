@@ -62,6 +62,7 @@
     let latency = LATECY_TO_REPLACE;
     let latencyInBeat;
     let isAudioOn = false;
+    let isLatencyCompensationEnabled;
 
     let audioToggle = function () {
         if (isAudioOn === true) {
@@ -82,8 +83,6 @@
         sample = new Howl({src: ['../static/sounds/sample.mp3']});
     }
 
-    //let mrNoisy = new p5.Noise();
-
     function blink() {
         const $blink = $('.blink');
         $blink.addClass("active");
@@ -94,16 +93,8 @@
 
     function beep() {
         if (isAudioOn === true) {
-            try {
-                sample.play();
-            } catch (e) {
-                console.log("not ready");
-            }
+            sample.play();
         }
-        //mrNoisy.start();
-        //setTimeout(() => {
-        //    mrNoisy.stop();
-        //}, 50);
     }
 
 
@@ -116,8 +107,8 @@
 
     socket.on('tempo', function (msg) {
         $('#tempo').html(msg);
-        latencyInBeat = (msg/60)*latency;
-        previousBeep = Math.ceil(msg) - latencyInBeat;
+        latencyInBeat = (msg / 60) * latency;
+        previousBeep = Math.ceil(previousBeep) - latencyInBeat;
     });
     socket.on('phase', function (msg) {
         if (Math.floor(msg) !== intPhase) {
@@ -131,20 +122,37 @@
         }
         if (Math.floor(msg) !== intBeat) {
             blink();
+            if (isLatencyCompensationEnabled === false)
+                beep();
             intBeat = Math.floor(msg);
             $('#beat').html(intBeat);
 
         }
         if (msg > previousBeep + 1) {
             previousBeep++;
-            console.log(msg);
-            beep();
+            if (isLatencyCompensationEnabled === true)
+                beep();
         }
     });
+
+    //functions to disable latency compensation
+    let disableLatencyCompensation = function () {
+        socket.emit("disableLatencyCompensation");
+    }
+    socket.on('disableLatencyCompensation', function () {
+        isLatencyCompensationEnabled = false;
+    });
+    let enableLatencyCompensation = function () {
+        socket.emit("enableLatencyCompensation");
+    }
+    socket.on('enableLatencyCompensation', function () {
+        isLatencyCompensationEnabled = true;
+    });
+
+
     socket.on('handshakeOK', function () {
         ready = true;
     });
-
 </script>
 
 

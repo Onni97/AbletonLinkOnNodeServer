@@ -137,30 +137,30 @@
         latencyInBeat = (msg / 60) * latency;
         previousBeep = Math.ceil(previousBeep) - latencyInBeat;
     });
-    socket.on('phase', function (msg) {
-        if (Math.floor(msg) !== intPhase) {
-            intPhase = Math.floor(msg);
-            $('#phase').html(intPhase);
-        }
-    });
-    socket.on('beat', function (msg) {
+
+    socket.on('beatPhase', function (msg) {
         if (intBeat === -1) {
-            previousBeep = Math.ceil(msg) - latencyInBeat;
+            previousBeep = Math.ceil(msg.beat) - latencyInBeat;
         }
-        if (Math.floor(msg) !== intBeat) {
+        if (Math.floor(msg.beat) !== intBeat) {
             blink();
             if (isLatencyCompensationEnabled === false)
                 beep();
-            intBeat = Math.floor(msg);
+            intBeat = Math.floor(msg.beat);
             $('#beat').html(intBeat);
 
         }
-        if (msg > previousBeep + 1) {
+        if (msg.beat > previousBeep + 1) {
             previousBeep++;
             if (isLatencyCompensationEnabled === true)
                 beep();
         }
-    });
+
+        if (Math.floor(msg.phase) !== intPhase) {
+            intPhase = Math.floor(msg.phase);
+            $('#phase').html(intPhase);
+        }
+    })
 
     //functions to disable latency compensation
     let disableLatencyCompensation = function () {

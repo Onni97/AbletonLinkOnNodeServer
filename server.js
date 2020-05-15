@@ -140,8 +140,11 @@ io.on('connection', (socket) => {
     socket.emit("numPeers", link.getNumPeers());
     socket.emit("tempo", link.getTempo(true));
     socket.emit("startStopSyncEnabled", link.isStartStopSyncEnabled());
-    socket.emit("beat", link.getBeat());
-    socket.emit("phase", link.getPhase());
+    io.emit("beatPhase", {
+        "beat": link.getBeat(),
+        "phase": link.getPhase()
+    });
+
     if (latencyCompensation === true)
         socket.emit("enableLatencyCompensation");
     else
@@ -168,8 +171,10 @@ link.setTempoCallback((tempo) => io.emit('tempo', link.getTempo(true)));
 link.setStartStopCallback((startStopState) => io.emit('playState', startStopState));
 
 setInterval(() => {
-    io.emit("beat", link.getBeat());
-    io.emit("phase", link.getPhase());
+    io.emit("beatPhase", {
+        "beat": link.getBeat(),
+        "phase": link.getPhase()
+    });
 }, 7);
 
 

@@ -10,12 +10,12 @@
 }
 
 #light {
-    margin-top: 3em;
+    margin-top: 2em;
     margin-right: auto;
     margin-left: auto;
     height: 3em;
     width: 3em;
-    border: 2px solid black;
+    border: 2px solid #666666;
     border-radius: 50%;
 }
 
@@ -27,34 +27,80 @@
     background-color: greenyellow;
 }
 
-#audioSwitchLabel {
+.settings {
     width: max-content;
-    margin: 20px auto;
+    margin: 2em auto 5em;
+    padding: 20px;
 }
 
-#audioSwitchCard {
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-    transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1), background-color 300ms ease-in-out;
-    background-color: #dc3545;
-    color: white;
-    width: 9em;
-    margin-top: 2em;
-    margin-right: auto;
-    margin-left: auto;
-    user-select: none;
+td {
+    height: min-content;
+    padding-bottom: 0.5em;
 }
 
-#audioSwitchCard:hover {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+.colSettingDescription {
+    text-align: left;
+    padding-right: 2em;
 }
 
-#audioSwitchCard:active {
-    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+.colSettingToggle {
+    width: min-content;
 }
 
-#audioSwitchCard.on {
-    background-color: #28a745;
+/* The switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 20px;
+    margin-bottom: 0;
 }
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+input:checked + .slider {
+    background-color: #2196F3;
+}
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+input:checked + .slider:before {
+    -webkit-transform: translateX(29px);
+    -ms-transform: translateX(29px);
+    transform: translateX(29px);
+}
+.slider.round {
+    border-radius: 34px;
+}
+.slider.round:before {
+    border-radius: 50%;
+}
+
+
 
 
 
@@ -81,5 +127,10 @@
 
     #audioSwitchCard {
         border-radius: .25rem;
+    }
+
+    .settings table {
+        margin-right: auto;
+        margin-left: auto;
     }
 }

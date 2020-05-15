@@ -33,13 +33,40 @@
     </div>
 </div>
 
-<div id="audioSwitchCard" class="card" onclick="audioToggle()">
-    <h5 id="audioSwitchLabel">Audio OFF</h5>
-</div>
-
 
 <div id="light" class="blink">
 </div>
+
+
+<div class="settings card">
+    <table>
+        <tr>
+            <td class="colSettingDescription">
+                Audio
+            </td>
+            <td class="colSettingToggle align-items-center">
+                <label class="switch">
+                    <input type="checkbox" id="audioSwitch" onclick="audioToggle()" autocomplete="off">
+                    <span class="slider round"></span>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td class="colSettingDescription">
+                Latency Compensation
+            </td>
+            <td class="colSettingToggle align-items-center">
+                <label class="switch">
+                    <input type="checkbox" id="latencyCompensationSwitch" onclick="latencyCompensationToggle()" checked autocomplete="off">
+                    <span class="slider round"></span>
+                </label>
+            </td>
+        </tr>
+    </table>
+
+
+</div>
+
 
 
 <footer></footer>
@@ -58,29 +85,35 @@
     });
 
     //setup sound
+    const socket = io();
+
     let sample;
     let latency = LATECY_TO_REPLACE;
     let latencyInBeat;
     let isAudioOn = false;
     let isLatencyCompensationEnabled;
 
+    let ready = false;
+    let intBeat = -1;
+    let intPhase = -1;
+    let previousBeep = -1;
+
     let audioToggle = function () {
         if (isAudioOn === true) {
-            $('#audioSwitchCard').removeClass("on");
-            $('#audioSwitchLabel').html("Audio OFF");
+            //$('#audioSwitch').removeProp('checked');
             isAudioOn = false;
         } else {
-            $('#audioSwitchCard').addClass("on");
-            $('#audioSwitchLabel').html("Audio ON");
+            //$('#audioSwitch').addProp('checked');
+            //$('#audioSwitch').prop('checked', true);
             isAudioOn = true;
             if (sample === undefined) {
-                setup();
+                sample = new Howl({src: ['../static/sounds/sample.mp3']});
             }
         }
     }
 
-    function setup() {
-        sample = new Howl({src: ['../static/sounds/sample.mp3']});
+    let latencyCompensationToggle = function () {
+        isLatencyCompensationEnabled = isLatencyCompensationEnabled !== true;
     }
 
     function blink() {
@@ -99,12 +132,6 @@
 
 
     //setup socket.io
-    const socket = io();
-    let ready = false;
-    let intBeat = -1;
-    let intPhase = -1;
-    let previousBeep = -1;
-
     socket.on('tempo', function (msg) {
         $('#tempo').html(msg);
         latencyInBeat = (msg / 60) * latency;
@@ -141,12 +168,14 @@
     }
     socket.on('disableLatencyCompensation', function () {
         isLatencyCompensationEnabled = false;
+        $('#latencyCompensationSwitch').removeProp('checked');
     });
     let enableLatencyCompensation = function () {
         socket.emit("enableLatencyCompensation");
     }
     socket.on('enableLatencyCompensation', function () {
         isLatencyCompensationEnabled = true;
+        $('#latencyCompensationSwitch').prop('checked', "true");
     });
 
 

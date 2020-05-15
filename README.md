@@ -5,6 +5,8 @@ A Node server that uses the Ableton Link protocol, implemented using [abletonlin
 
 It serves a page to see the data of the Ableton Link session that is running on the same WiFi.
 
+The page will play a sound on the beat change, there is an audio latency compensation system made by me usings the Superpowered audio latency table.
+
 
 ## Tested Env
 ### OS tested: 
@@ -66,3 +68,6 @@ MIT
 
 ## Author
 Me, [Alessandro Oniarti](https://github.com/Onni97)
+
+## Thanks
+- [Superpowered](https://superpowered.com/) for the audio latency table

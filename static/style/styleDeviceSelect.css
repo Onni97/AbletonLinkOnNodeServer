@@ -23,6 +23,7 @@
 .noPhoto {
     height: max-content;
     width: max-content;
+    overflow-x: auto;
 }
 
 .noPhoto h4 {
@@ -46,7 +47,7 @@
 }
 
 .colCard {
-    max-width: min-content;
+    max-width: 90vw;
     margin-right: 15px;
     margin-left: 15px;
     margin-bottom: 30px;

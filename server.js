@@ -23,36 +23,13 @@ app.get('/deviceSelectPC-Mobile', (req, res) => {
     res.sendFile(__dirname + '/pages/deviceSelectPC-Mobile.html');
 });
 
-app.get('/deviceSelectVendor', (req, res) => {
-    fs.readFile(__dirname + '/pages/deviceSelectVendor.html', function (err, data) {
-        if (err) {
-            console.log(err);
-        } else {
-            let stringToInsert = "";
-            let keys = Object.keys(deviceLatencies);
-            keys.forEach(function (item) {
-                stringToInsert += '<div class="col colCard d-flex align-items-center">\n' +
-                    '        <div class="card mx-auto" style="opacity: 0" onclick="clicked(\'' + item + '\')">\n' +
-                    '            <img class="card-img-top" src="/static/images/' + item + '.svg" alt="Card image cap">\n' +
-                    '            <div class="card-body">\n' +
-                    '                <h4 class="card-title">' + item + '</h4>\n' +
-                    '            </div>\n' +
-                    '        </div>\n' +
-                    '    </div>';
-            })
-            let page = data.toString().replace("TO_REPLACE", stringToInsert);
-            res.send(page);
-        }
-    });
-});
-
 app.get('/deviceSelectModel', (req, res) => {
     fs.readFile(__dirname + '/pages/deviceSelectModel.html', function (err, data) {
         if (err) {
             console.log(err);
         } else {
             let stringToInsert = "";
-            let keys = Object.keys(deviceLatencies[req.query.vendor]);
+            let keys = Object.keys(deviceLatencies);
             keys.forEach(function (item) {
                 stringToInsert += '<div class="col colCard d-flex align-items-center">\n' +
                     '        <div class="card noPhoto mx-auto" style="opacity: 0" onclick="clicked(\'' + item + '\')">\n' +
@@ -74,7 +51,7 @@ app.get('/deviceSelectVersion', (req, res) => {
             console.log(err);
         } else {
             let stringToInsert = "";
-            let keys = Object.keys(deviceLatencies[req.query.vendor][req.query.model]);
+            let keys = Object.keys(deviceLatencies[req.query.model]);
             keys.forEach(function (item) {
                 stringToInsert += '<div class="col colCard d-flex align-items-center">\n' +
                     '        <div class="card noPhoto mx-auto" style="opacity: 0" onclick="clicked(\'' + item + '\')">\n' +
@@ -95,8 +72,7 @@ app.post('/setDevice', (req, res) => {
         req.session.deviceLatency = 0;
         res.sendStatus(200);
     } else {
-        //TODO: controllare se funziona
-        req.session.deviceLatency = deviceLatencies[req.body.vendor][req.body.model][req.body.version]/2000;
+        req.session.deviceLatency = deviceLatencies[req.body.model][req.body.version]/2;
         res.sendStatus(200);
     }
 });
@@ -175,7 +151,7 @@ setInterval(() => {
         "beat": link.getBeat(),
         "phase": link.getPhase()
     });
-}, 7);
+}, 6);
 
 
 

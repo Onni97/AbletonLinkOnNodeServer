@@ -1,16 +1,102 @@
-<div class="row">
-    TO_REPLACE
-</div>
+<label id="searchModelLabel">
+    <select id="searchModel" name="state" style="width: 100%">
+        <option>Search</option>
+    </select>
+</label>
 
-<!-- TODO: implement infinite scroll -->
+<!-- TODO: add select2 -->
+
+
+
+<div class="row" id="container">
+</div>
+<img id="loader" src="static/images/loader2.gif"  alt="loader"/>
+<h3 hidden id="finish">No more devices</h3>
+
 
 <script type="application/javascript">
     $(document).ready(function () {
-        appear();
+        loadContent();
     });
+
+    let searchModel = $('#searchModel');
+    searchModel.select2();
+    $.ajax({
+        url: window.location.href + "deviceSelectModel/all",
+        type: 'get',
+        success: function (response) {
+            let toInsert = "";
+            response.forEach(function (item) {
+                toInsert += "<option>" + item + "</option>";
+            });
+            // Add response in mainPage
+            $('#searchModel').append(toInsert);
+            appear();
+        },
+        async: true
+    });
+    searchModel.on('select2:select', function (e) {
+        clicked(e.params.data.id)
+    });
+
 
     function clicked(choice) {
         device.model = choice;
         changeSelection(window.location.href + "deviceSelectVersion?vendor=" + device.vendor + "&model=" + choice);
+    }
+
+
+    //infinite scroll
+    let contentFinished = false;
+    let page = 0;
+    let loading = true;
+
+    $(window).scroll(function () {
+        //if scroll to the bottom of the page load new content if not finished
+        if ($(window).scrollTop() === $(document).height() - $(window).height()) {
+            if (contentFinished) {
+                return false;
+            } else {
+                if (loading) {
+                    loading = false;
+                    loadContent();
+                }
+            }
+        }
+    });
+
+    function loadContent() {
+        $('#loader').removeClass('hidden');
+        $.ajax({
+            url: window.location.href + "deviceSelectModel/" + page,
+            type: 'get',
+            success: function (response) {
+                let toInsert = "";
+                response.forEach(function (item) {
+                    if (item === -1) {
+                        $('#loader').hide();
+                        $('#finish').removeAttr('hidden');
+                        contentFinished = true;
+                    } else {
+                        toInsert += '<div class="col colCard d-flex align-items-center">\n' +
+                            '        <div class="card noPhoto mx-auto" style="opacity: 0" onclick="clicked(\'' + item + '\')">\n' +
+                            '            <div class="card-body">\n' +
+                            '                <h4 class="card-title">' + item + '</h4>\n' +
+                            '            </div>\n' +
+                            '        </div>\n' +
+                            '    </div>';
+                    }
+                });
+                page++;
+                loading = true;
+                // Add response in mainPage
+                $('#container').append(toInsert);
+                appear();
+            },
+            async: true
+        });
+
+        return false;
+
     }
 </script>

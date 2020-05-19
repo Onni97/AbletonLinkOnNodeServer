@@ -7,16 +7,10 @@ const session = require('express-session');
 
 app.use('/static', express.static(__dirname + '/static'));
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
-app.use(session({
-    'secret': 'hbjsv86sf78vhwebuv73928ubfe8r9fu3ibhnsku2f398',
-    'resave': false,
-    'saveUninitialized': true
-}));
 
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/pages/deviceSelect.html')
+    res.sendFile(__dirname + '/pages/deviceSelect.html');
 });
 
 app.get('/deviceSelectPC-Mobile', (req, res) => {
@@ -24,25 +18,29 @@ app.get('/deviceSelectPC-Mobile', (req, res) => {
 });
 
 app.get('/deviceSelectModel', (req, res) => {
-    fs.readFile(__dirname + '/pages/deviceSelectModel.html', function (err, data) {
-        if (err) {
-            console.log(err);
-        } else {
-            let stringToInsert = "";
-            let keys = Object.keys(deviceLatencies);
-            keys.forEach(function (item) {
-                stringToInsert += '<div class="col colCard d-flex align-items-center">\n' +
-                    '        <div class="card noPhoto mx-auto" style="opacity: 0" onclick="clicked(\'' + item + '\')">\n' +
-                    '            <div class="card-body">\n' +
-                    '                <h4 class="card-title">' + item + '</h4>\n' +
-                    '            </div>\n' +
-                    '        </div>\n' +
-                    '    </div>';
-            })
-            let page = data.toString().replace("TO_REPLACE", stringToInsert);
-            res.send(page);
+    res.sendFile(__dirname + '/pages/deviceSelectModel.html');
+});
+
+app.get("/deviceSelectModel/:page", (req, res) => {
+    const PAGE_ELEMENTS = 50;
+    let keys = Object.keys(deviceLatencies);
+
+    let page = req.params.page;
+
+    if (page === "all") {
+        res.send(keys);
+    } else {
+        let start = page * PAGE_ELEMENTS;
+        let result = keys.slice(start, start + PAGE_ELEMENTS);
+
+        if( start + PAGE_ELEMENTS >= keys.length) {
+            result.push(-1);
         }
-    });
+
+        res.send(result);
+    }
+
+
 });
 
 app.get('/deviceSelectVersion', (req, res) => {
@@ -72,7 +70,7 @@ app.post('/setDevice', (req, res) => {
         req.session.deviceLatency = 0;
         res.sendStatus(200);
     } else {
-        req.session.deviceLatency = deviceLatencies[req.body.model][req.body.version]/2;
+        req.session.deviceLatency = deviceLatencies[req.body.model][req.body.version] / 2;
         res.sendStatus(200);
     }
 });
@@ -152,8 +150,6 @@ setInterval(() => {
         "phase": link.getPhase()
     });
 }, 6);
-
-
 
 
 //start listening

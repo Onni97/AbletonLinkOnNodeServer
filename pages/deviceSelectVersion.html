@@ -1,17 +1,31 @@
-<div class="row">
-    TO_REPLACE
-</div>
-
-
-
-
 <script type="application/javascript">
-    $(document).ready(function () {
-        appear();
-    });
+    function goBack() {
+        changeSelection(window.location.href + "deviceSelectModel");
+    }
+
 
     function clicked(choice) {
         device.version = choice;
         goOnLink();
     }
 </script>
+
+
+<div id="titleRow" class="row">
+    <div class="col">
+        <h1>Select your OS version</h1>
+    </div>
+</div>
+
+
+<div class="row justify-content-between" id="subTitle">
+    <div class="card noPhoto" id="goBack" onclick="goBack()">
+        <div class="card-body">
+            <h5 class="card-title">&larr; Go Back</h5>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    TO_REPLACE
+</div>

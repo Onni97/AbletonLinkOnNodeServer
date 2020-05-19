@@ -52,9 +52,9 @@ app.get('/deviceSelectVersion', (req, res) => {
             let keys = Object.keys(deviceLatencies[req.query.model]);
             keys.forEach(function (item) {
                 stringToInsert += '<div class="col colCard d-flex align-items-center">\n' +
-                    '        <div class="card noPhoto mx-auto" style="opacity: 0" onclick="clicked(\'' + item + '\')">\n' +
+                    '        <div class="card noPhoto mx-auto" onclick="clicked(\'' + item + '\')">\n' +
                     '            <div class="card-body">\n' +
-                    '                <h4 class="card-title">' + item + '</h4>\n' +
+                    '                <h5 class="card-title">' + item + '</h5>\n' +
                     '            </div>\n' +
                     '        </div>\n' +
                     '    </div>';

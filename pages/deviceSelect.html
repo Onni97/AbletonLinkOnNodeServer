@@ -13,11 +13,7 @@
 </head>
 <body>
 
-<div id="titleRow" class="row">
-    <div class="col">
-        <h1>Select your device</h1>
-    </div>
-</div>
+
 <div id="deviceSelectDiv"></div>
 
 
@@ -56,9 +52,7 @@
 
     //functions to change choices
     let changeSelection = function (url) {
-        $('.card').css({
-            'opacity': '0',
-        });
+        $('#deviceSelectDiv').css({'opacity': '0'});
         setTimeout(function () {
             $.ajax({
                 url: url,
@@ -66,17 +60,20 @@
                 success: function (response) {
                     // Add response in mainPage
                     $('#deviceSelectDiv').html(response);
+                    $('#deviceSelectDiv').removeAttr('style');
+
                 },
                 async: true
             });
         }, 300);
     }
     let appear = function () {
-        setTimeout(function () {
-            $('.card').removeAttr('style');
-            setTimeout(function () {
-            }, 300);
-        }, 10);
+        //setTimeout(function () {
+        //    $('.card').removeAttr('style');
+        //    $('#subTitle').removeAttr('style');
+        //    setTimeout(function () {
+        //    }, 300);
+        //}, 30);
     }
 
 

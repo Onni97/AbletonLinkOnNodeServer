@@ -1,102 +1,124 @@
-<label id="searchModelLabel">
-    <select id="searchModel" name="state" style="width: 100%">
-        <option>Search</option>
-    </select>
-</label>
-
-<!-- TODO: add select2 -->
-
-
-
-<div class="row" id="container">
-</div>
-<img id="loader" src="static/images/loader2.gif"  alt="loader"/>
-<h3 hidden id="finish">No more devices</h3>
-
-
 <script type="application/javascript">
-    $(document).ready(function () {
-        loadContent();
-    });
-
-    let searchModel = $('#searchModel');
-    searchModel.select2();
-    $.ajax({
-        url: window.location.href + "deviceSelectModel/all",
-        type: 'get',
-        success: function (response) {
-            let toInsert = "";
-            response.forEach(function (item) {
-                toInsert += "<option>" + item + "</option>";
-            });
-            // Add response in mainPage
-            $('#searchModel').append(toInsert);
-            appear();
-        },
-        async: true
-    });
-    searchModel.on('select2:select', function (e) {
-        clicked(e.params.data.id)
-    });
+    function goBack() {
+        changeSelection(window.location.href + "deviceSelectPc-Mobile");
+    }
 
 
     function clicked(choice) {
         device.model = choice;
         changeSelection(window.location.href + "deviceSelectVersion?vendor=" + device.vendor + "&model=" + choice);
     }
+</script>
 
 
-    //infinite scroll
-    let contentFinished = false;
-    let page = 0;
-    let loading = true;
+<div id="titleRow" class="row">
+    <div class="col">
+        <h1>Select your Mobile/Tablet</h1>
+    </div>
+</div>
 
-    $(window).scroll(function () {
-        //if scroll to the bottom of the page load new content if not finished
-        if ($(window).scrollTop() === $(document).height() - $(window).height()) {
-            if (contentFinished) {
-                return false;
-            } else {
-                if (loading) {
-                    loading = false;
-                    loadContent();
-                }
-            }
-        }
-    });
 
-    function loadContent() {
-        $('#loader').removeClass('hidden');
+<div class="row justify-content-between" id="subTitle">
+    <div class="card noPhoto" id="goBack" onclick="goBack()">
+        <div class="card-body">
+            <h5 class="card-title">&larr; Go Back</h5>
+        </div>
+    </div>
+    <label id="searchModelLabel">
+        <select id="searchModel" name="state" style="width: 100%" multiple="multiple">
+        </select>
+    </label>
+    <div class="card noPhoto hidden">
+        <div class="card-body">
+            <h5 class="card-title"><- Go Back</h5>
+        </div>
+    </div>
+</div>
+
+
+<div class="row" id="container">
+</div>
+<img id="loader" src="static/images/loader2.gif" alt="loader"/>
+<h3 hidden id="finish">No more devices</h3>
+
+
+<script type="application/javascript">
+    $(document).ready(function () {
+        let searchModel = $('#searchModel');
+        searchModel.select2({
+            placeholder: "Search"
+        });
         $.ajax({
-            url: window.location.href + "deviceSelectModel/" + page,
+            url: window.location.href + "deviceSelectModel/all",
             type: 'get',
             success: function (response) {
                 let toInsert = "";
                 response.forEach(function (item) {
-                    if (item === -1) {
-                        $('#loader').hide();
-                        $('#finish').removeAttr('hidden');
-                        contentFinished = true;
-                    } else {
-                        toInsert += '<div class="col colCard d-flex align-items-center">\n' +
-                            '        <div class="card noPhoto mx-auto" style="opacity: 0" onclick="clicked(\'' + item + '\')">\n' +
-                            '            <div class="card-body">\n' +
-                            '                <h4 class="card-title">' + item + '</h4>\n' +
-                            '            </div>\n' +
-                            '        </div>\n' +
-                            '    </div>';
-                    }
+                    toInsert += "<option>" + item + "</option>";
                 });
-                page++;
-                loading = true;
                 // Add response in mainPage
-                $('#container').append(toInsert);
-                appear();
+                $('#searchModel').append(toInsert);
             },
             async: true
         });
+        searchModel.on('select2:select', function (e) {
+            clicked(e.params.data.id)
+        });
 
-        return false;
 
-    }
+        //infinite scroll
+        let contentFinished = false;
+        let page = 0;
+        let loading = true;
+
+        $(window).scroll(function () {
+            //if scroll to the bottom of the page load new content if not finished
+            if ($(window).scrollTop() === $(document).height() - $(window).height()) {
+                if (contentFinished) {
+                    return false;
+                } else {
+                    if (loading) {
+                        loading = false;
+                        loadContent();
+                    }
+                }
+            }
+        });
+
+        function loadContent() {
+            $('#loader').removeClass('hidden');
+            $.ajax({
+                url: window.location.href + "deviceSelectModel/" + page,
+                type: 'get',
+                success: function (response) {
+                    let toInsert = "";
+                    response.forEach(function (item) {
+                        if (item === -1) {
+                            $('#loader').hide();
+                            $('#finish').removeAttr('hidden');
+                            contentFinished = true;
+                        } else {
+                            toInsert += '<div class="col colCard d-flex align-items-center">\n' +
+                                '        <div class="card noPhoto mx-auto" onclick="clicked(\'' + item + '\')">\n' +
+                                '            <div class="card-body">\n' +
+                                '                <h5 class="card-title">' + item + '</h5>\n' +
+                                '            </div>\n' +
+                                '        </div>\n' +
+                                '    </div>';
+                        }
+                    });
+                    page++;
+                    loading = true;
+                    // Add response in mainPage
+                    $('#container').append(toInsert);
+                },
+                async: true
+            });
+
+            return false;
+
+        }
+
+        loadContent();
+    });
 </script>

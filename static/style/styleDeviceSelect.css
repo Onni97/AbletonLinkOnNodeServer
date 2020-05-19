@@ -3,6 +3,10 @@
     margin-bottom: 1em;
 }
 
+#deviceSelectDiv {
+    transition: opacity 300ms ease-in;
+}
+
 .row {
     justify-content: center;
 }
@@ -12,9 +16,23 @@
     height: 60px;
 }
 
-#searchModelLabel {
+#subTitle {
     margin-bottom: 2em;
+}
+
+#goBack {
+    margin-left: 15px;
+}
+
+#searchModelLabel {
     width: 35%;
+    height: min-content;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.select2-search__field {
+    text-align: center;
 }
 
 .card {
@@ -34,6 +52,10 @@
     height: max-content;
     width: max-content;
     overflow-x: auto;
+}
+
+.card-title {
+    margin-bottom: 0;
 }
 
 .noPhoto h4 {
@@ -63,6 +85,10 @@
     margin-bottom: 30px;
     padding-right: 0;
     padding-left: 0;
+}
+
+.hidden {
+    visibility: hidden !important;
 }
 
 

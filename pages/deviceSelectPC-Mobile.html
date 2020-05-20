@@ -26,11 +26,14 @@
 </div>
 
 <script type="application/javascript">
+    //when clicked on the choice
     function clicked(choice) {
         if (choice === 'PC') {
+            //if selected pc go directly on link page
             device.isPC = true;
             goOnLink();
         } else {
+            //if selected mobile load the device select subpage
             device.isPC = false;
             changeSelection(window.location.href + "deviceSelectModel");
         }

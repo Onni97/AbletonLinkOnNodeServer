@@ -1,4 +1,4 @@
-//setup express
+//SETUP EXPRESS
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
@@ -9,47 +9,61 @@ app.use('/static', express.static(__dirname + '/static'));
 app.use(express.json());
 
 
+//load device-latencies.json file
+let deviceLatencies = require(__dirname + '/resources/device-latencies.json');
+
+
+//the initial page allows to select the device
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/pages/deviceSelect.html');
 });
 
+//subpage to show the choice PC-Mobile
 app.get('/deviceSelectPC-Mobile', (req, res) => {
     res.sendFile(__dirname + '/pages/deviceSelectPC-Mobile.html');
 });
 
+//subpage to select the model
 app.get('/deviceSelectModel', (req, res) => {
     res.sendFile(__dirname + '/pages/deviceSelectModel.html');
 });
 
+//page that returns a limited number of models for implementing the infinite scroll
 app.get("/deviceSelectModel/:page", (req, res) => {
-    const PAGE_ELEMENTS = 50;
+    //get all the required data
+    const PAGE_ELEMENTS = 60;
     let keys = Object.keys(deviceLatencies);
-
     let page = req.params.page;
 
     if (page === "all") {
+        //if the page parameter is "all" return all the models
         res.send(keys);
     } else {
+        //return the specified page
         let start = page * PAGE_ELEMENTS;
         let result = keys.slice(start, start + PAGE_ELEMENTS);
 
-        if( start + PAGE_ELEMENTS >= keys.length) {
-            result.push(-1);
+        //when the elements are finished append a "-1"
+        if (start + PAGE_ELEMENTS >= keys.length) {
+            result.push("-1");
         }
 
         res.send(result);
     }
-
-
 });
 
+//subpage to select the OS version
 app.get('/deviceSelectVersion', (req, res) => {
+    //load the html file
     fs.readFile(__dirname + '/pages/deviceSelectVersion.html', function (err, data) {
         if (err) {
             console.log(err);
+            res.sendStatus(500);
         } else {
-            let stringToInsert = "";
+            //get the selected model from the url
             let keys = Object.keys(deviceLatencies[req.query.model]);
+            //insert the OS version of the model in the page and then return the generated file
+            let stringToInsert = "";
             keys.forEach(function (item) {
                 stringToInsert += '<div class="col colCard d-flex align-items-center">\n' +
                     '        <div class="card noPhoto mx-auto" onclick="clicked(\'' + item + '\')">\n' +
@@ -65,6 +79,7 @@ app.get('/deviceSelectVersion', (req, res) => {
     });
 });
 
+//method to confirm the choice and store the related latency in the session
 app.post('/setDevice', (req, res) => {
     if (req.body.isPC === "true") {
         req.session.deviceLatency = 0;
@@ -75,15 +90,19 @@ app.post('/setDevice', (req, res) => {
     }
 });
 
-
+//the page that shows the link session informations
 app.get('/link', (req, res) => {
+    //get the latency from the session
     let deviceLatency = req.session.deviceLatency;
     if (deviceLatency === undefined) {
+        //if not present redirect to the page to select the device
         res.redirect("/");
     } else {
+        //if latency is present load the file, insert the latency and return that
         fs.readFile(__dirname + '/pages/link.html', function (err, data) {
             if (err) {
                 console.log(err);
+                res.sendStatus(500);
             } else {
                 let page = data.toString().replace("LATECY_TO_REPLACE", deviceLatency);
                 res.send(page);
@@ -92,29 +111,29 @@ app.get('/link', (req, res) => {
     }
 });
 
+//method that will return the footer, so it will be the same in all the pages
 app.get('/footer', (req, res) => {
     res.sendFile(__dirname + "/pages/footer.html");
 });
 
 
-//load device-latencies file
-let deviceLatencies = require(__dirname + '/resources/device-latencies.json');
+//SETUP SOCKET.IO
+const io = require('socket.io')(http);
 
-
-//setup abletonlink-addon
+//create Link instance
 const AbletonLink = require("abletonlink-addon");
 const link = new AbletonLink();
 
-
-//setup socket.io
-const io = require('socket.io')(http);
-
+//by default latency compensation is enabled
 let latencyCompensation = true;
+
+
+//on connection the socket will send the params to the client
 io.on('connection', (socket) => {
     socket.emit("numPeers", link.getNumPeers());
     socket.emit("tempo", link.getTempo(true));
     socket.emit("startStopSyncEnabled", link.isStartStopSyncEnabled());
-    io.emit("beatPhase", {
+    socket.emit("beatPhase", {
         "beat": link.getBeat(),
         "phase": link.getPhase()
     });
@@ -140,10 +159,14 @@ io.on('connection', (socket) => {
     });
 });
 
+
+//the callbacks, when the number of peers, the tempo or the start/stop state will chenge, the socket will send them to the client
 link.setNumPeersCallback((numPeers) => io.emit('numPeers', numPeers));
 link.setTempoCallback((tempo) => io.emit('tempo', link.getTempo(true)));
 link.setStartStopCallback((startStopState) => io.emit('playState', startStopState));
 
+
+//every 6ms the server will send the beat and phase to the clients
 setInterval(() => {
     io.emit("beatPhase", {
         "beat": link.getBeat(),

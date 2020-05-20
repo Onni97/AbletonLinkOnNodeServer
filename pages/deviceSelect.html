@@ -21,6 +21,7 @@
 </body>
 
 <script type="application/javascript">
+    //variable tha will be updated with the choices of the user
     let device = {
         "isPC": null,
         "model": null,
@@ -32,7 +33,7 @@
         url: window.location.href + "footer",
         type: 'get',
         success: function (response) {
-            // Add response in mainPage
+            //add response in the footer
             $('footer').html(response);
         },
         async: true
@@ -43,42 +44,37 @@
         url: window.location.href + "deviceSelectPC-Mobile",
         type: 'get',
         success: function (response) {
-            // Add response in mainPage
+            //add response in the page
             $('#deviceSelectDiv').html(response);
         },
         async: true
     });
 
 
-    //functions to change choices
+    //functions to change subpage
     let changeSelection = function (url) {
+        //hide the subpage with effect
         $('#deviceSelectDiv').css({'opacity': '0'});
         setTimeout(function () {
             $.ajax({
                 url: url,
                 type: 'get',
                 success: function (response) {
-                    // Add response in mainPage
-                    $('#deviceSelectDiv').html(response);
-                    $('#deviceSelectDiv').removeAttr('style');
-
+                    //load the subpage after 300ms (the end of the effect)
+                    let deviceSelectDiv = $('#deviceSelectDiv');
+                    deviceSelectDiv.html(response);
+                    //show it with effect
+                    deviceSelectDiv.removeAttr('style');
                 },
                 async: true
             });
         }, 300);
     }
-    let appear = function () {
-        //setTimeout(function () {
-        //    $('.card').removeAttr('style');
-        //    $('#subTitle').removeAttr('style');
-        //    setTimeout(function () {
-        //    }, 300);
-        //}, 30);
-    }
 
 
     //function to go on the link page
     let goOnLink = function () {
+        //send the selected device data to the server
         $.ajax({
             url: window.location.href + "setDevice",
             type: 'post',
@@ -88,6 +84,7 @@
                 "version": device.version
             },
             success: function (response) {
+                //go on the link data page
                 window.location.href = window.location.href + "link";
             },
             async: false

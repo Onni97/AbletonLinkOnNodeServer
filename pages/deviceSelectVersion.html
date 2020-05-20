@@ -1,9 +1,10 @@
 <script type="application/javascript">
+    //function to return to the previous subpage
     function goBack() {
         changeSelection(window.location.href + "deviceSelectModel");
     }
 
-
+    //function to confirm the selection and go to the link page
     function clicked(choice) {
         device.version = choice;
         goOnLink();
@@ -11,21 +12,24 @@
 </script>
 
 
-<div id="titleRow" class="row">
-    <div class="col">
-        <h1>Select your OS version</h1>
-    </div>
-</div>
-
-
-<div class="row justify-content-between" id="subTitle">
+<div id="titleRow" class="row justify-content-between">
     <div class="card noPhoto" id="goBack" onclick="goBack()">
         <div class="card-body">
             <h5 class="card-title">&larr; Go Back</h5>
         </div>
     </div>
+    <div class="col">
+        <h1>Select your OS version</h1>
+    </div>
+    <div class="card noPhoto hidden">
+        <div class="card-body">
+            <h5 class="card-title"><- Go Back</h5>
+        </div>
+    </div>
 </div>
 
+
 <div class="row">
+    <!-- this string will be replaced from the server with the OS versions of the previously selected device -->
     TO_REPLACE
 </div>

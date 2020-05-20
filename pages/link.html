@@ -74,6 +74,7 @@
 
 
 <script type="application/javascript">
+    //load the footer
     $.ajax({
         url: window.location.href.substring(0, window.location.href.length - 4) + "footer",
         type: 'get',
@@ -84,38 +85,45 @@
         async: true
     });
 
-    //setup sound
+    //socket
     const socket = io();
 
+    //audio parameters
     let sample;
-    let latency = LATECY_TO_REPLACE;
-    let latencyInBeat;
     let isAudioOn = false;
-    let isLatencyCompensationEnabled;
 
-    let ready = false;
+    //latency parameters
+    let isLatencyCompensationEnabled;
+    let latencyInBeat;
+    let previousBeep = -1;
+    //latency that will be set from the server
+    let latency = LATECY_TO_REPLACE;
+
+    //other parameters
     let intBeat = -1;
     let intPhase = -1;
-    let previousBeep = -1;
 
+
+    //function to activate dedactivate the audio
     let audioToggle = function () {
         if (isAudioOn === true) {
-            //$('#audioSwitch').removeProp('checked');
             isAudioOn = false;
         } else {
-            //$('#audioSwitch').addProp('checked');
-            //$('#audioSwitch').prop('checked', true);
             isAudioOn = true;
             if (sample === undefined) {
+                //if sample is not defined define it
                 sample = new Howl({src: ['../static/sounds/sample.mp3']});
             }
         }
     }
 
+    //function to activate dedactivate the latency compensation
     let latencyCompensationToggle = function () {
         isLatencyCompensationEnabled = isLatencyCompensationEnabled !== true;
     }
 
+
+    //function to make the .blink class blink
     function blink() {
         const $blink = $('.blink');
         $blink.addClass("active");
@@ -124,6 +132,7 @@
         }, 100);
     }
 
+    //function to play the sample if audio is on
     function beep() {
         if (isAudioOn === true) {
             sample.play();
@@ -131,38 +140,51 @@
     }
 
 
-    //setup socket.io
+    //when tempo change
     socket.on('tempo', function (msg) {
+        //update tempo in the page
         $('#tempo').html(msg);
+        //update the parameters for latency
         latencyInBeat = (msg / 60) * latency;
         previousBeep = Math.ceil(previousBeep) - latencyInBeat;
     });
 
+    //received beat and phase
     socket.on('beatPhase', function (msg) {
+        //if is the first message, set the latency parameter
         if (intBeat === -1) {
             previousBeep = Math.ceil(msg.beat) - latencyInBeat;
         }
+
+        //if the beat is changed
         if (Math.floor(msg.beat) !== intBeat) {
+            //blink
             blink();
+            //play the sample if latency compensation is enabled
             if (isLatencyCompensationEnabled === false)
                 beep();
+            //update the page
             intBeat = Math.floor(msg.beat);
             $('#beat').html(intBeat);
 
         }
+
+        //play the sample before the exact beat of the latency amount
         if (msg.beat > previousBeep + 1) {
             previousBeep++;
             if (isLatencyCompensationEnabled === true)
                 beep();
         }
 
+        //update the phase
         if (Math.floor(msg.phase) !== intPhase) {
             intPhase = Math.floor(msg.phase);
             $('#phase').html(intPhase);
         }
     });
 
-    //functions to disable latency compensation
+
+    //functions to disable/enable latency compensation
     let disableLatencyCompensation = function () {
         socket.emit("disableLatencyCompensation");
     }
@@ -176,11 +198,6 @@
     socket.on('enableLatencyCompensation', function () {
         isLatencyCompensationEnabled = true;
         $('#latencyCompensationSwitch').prop('checked', "true");
-    });
-
-
-    socket.on('handshakeOK', function () {
-        ready = true;
     });
 </script>
 

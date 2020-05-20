@@ -1,9 +1,10 @@
 <script type="application/javascript">
+    //function to return to the previous subpage
     function goBack() {
         changeSelection(window.location.href + "deviceSelectPc-Mobile");
     }
 
-
+    //function to go to the next subpage
     function clicked(choice) {
         device.model = choice;
         changeSelection(window.location.href + "deviceSelectVersion?vendor=" + device.vendor + "&model=" + choice);
@@ -11,23 +12,15 @@
 </script>
 
 
-<div id="titleRow" class="row">
-    <div class="col">
-        <h1>Select your Mobile/Tablet</h1>
-    </div>
-</div>
-
-
-<div class="row justify-content-between" id="subTitle">
+<div id="titleRow" class="row justify-content-between">
     <div class="card noPhoto" id="goBack" onclick="goBack()">
         <div class="card-body">
             <h5 class="card-title">&larr; Go Back</h5>
         </div>
     </div>
-    <label id="searchModelLabel">
-        <select id="searchModel" name="state" style="width: 100%" multiple="multiple">
-        </select>
-    </label>
+    <div class="col">
+        <h1>Select your Mobile/Tablet</h1>
+    </div>
     <div class="card noPhoto hidden">
         <div class="card-body">
             <h5 class="card-title"><- Go Back</h5>
@@ -36,8 +29,16 @@
 </div>
 
 
-<div class="row" id="container">
+<div id="subTitle" class="row">
+    <label id="searchModelLabel">
+        <select id="searchModel" name="state" style="width: 100%" multiple="multiple">
+        </select>
+    </label>
 </div>
+
+
+<!-- The container will be filled with ajax for the infinite scroll -->
+<div class="row" id="container"></div>
 <img id="loader" src="static/images/loader2.gif" alt="loader"/>
 <h3 hidden id="finish">No more devices</h3>
 
@@ -45,9 +46,11 @@
 <script type="application/javascript">
     $(document).ready(function () {
         let searchModel = $('#searchModel');
+        //SETUP SELECT2
         searchModel.select2({
             placeholder: "Search"
         });
+        //get all the options with ajax
         $.ajax({
             url: window.location.href + "deviceSelectModel/all",
             type: 'get',
@@ -61,39 +64,39 @@
             },
             async: true
         });
+        //when selecting ad option go on the next subpage
         searchModel.on('select2:select', function (e) {
             clicked(e.params.data.id)
         });
 
 
-        //infinite scroll
+        //SETUP INFINITE SCROLL
         let contentFinished = false;
         let page = 0;
-        let loading = true;
 
+        //scroll event
         $(window).scroll(function () {
             //if scroll to the bottom of the page load new content if not finished
-            if ($(window).scrollTop() === $(document).height() - $(window).height()) {
-                if (contentFinished) {
-                    return false;
-                } else {
-                    if (loading) {
-                        loading = false;
-                        loadContent();
-                    }
+            if ($(window).scrollTop() > ($(document).height() - $(window).height()) - 50) {
+                if (!contentFinished) {
+                    loadContent();
                 }
             }
         });
 
+        //load content with ajax
         function loadContent() {
+            //show the loader
             $('#loader').removeClass('hidden');
+            //request the next page
             $.ajax({
                 url: window.location.href + "deviceSelectModel/" + page,
                 type: 'get',
                 success: function (response) {
+                    //generate the html, for each model of the page generate a card
                     let toInsert = "";
                     response.forEach(function (item) {
-                        if (item === -1) {
+                        if (item === "-1") {
                             $('#loader').hide();
                             $('#finish').removeAttr('hidden');
                             contentFinished = true;
@@ -108,17 +111,14 @@
                         }
                     });
                     page++;
-                    loading = true;
-                    // Add response in mainPage
+                    //append the generated html in the container
                     $('#container').append(toInsert);
                 },
                 async: true
             });
-
-            return false;
-
         }
 
+        //load the first page at the beginning
         loadContent();
     });
 </script>

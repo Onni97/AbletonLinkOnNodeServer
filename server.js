@@ -7,6 +7,12 @@ const session = require('express-session');
 
 app.use('/static', express.static(__dirname + '/static'));
 app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+app.use(session({
+    'secret': 'hbjsv86sf78vhwebuv73928ubfe8r9fu3ibhnsku2f398',
+    'resave': false,
+    'saveUninitialized': true
+}));
 
 
 //load device-latencies.json file
@@ -85,7 +91,7 @@ app.post('/setDevice', (req, res) => {
         req.session.deviceLatency = 0;
         res.sendStatus(200);
     } else {
-        req.session.deviceLatency = deviceLatencies[req.body.model][req.body.version] / 2;
+        req.session.deviceLatency = deviceLatencies[req.body.model][req.body.version] / 2000;
         res.sendStatus(200);
     }
 });

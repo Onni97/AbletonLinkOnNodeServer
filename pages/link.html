@@ -57,7 +57,7 @@
             </td>
             <td class="colSettingToggle align-items-center">
                 <label class="switch">
-                    <input type="checkbox" id="latencyCompensationSwitch" onclick="latencyCompensationToggle()" checked autocomplete="off">
+                    <input type="checkbox" id="latencyCompensationSwitch" autocomplete="off" onclick="latencyCompensationToggle()">
                     <span class="slider round"></span>
                 </label>
             </td>
@@ -146,7 +146,9 @@
         $('#tempo').html(msg);
         //update the parameters for latency
         latencyInBeat = (msg / 60) * latency;
-        previousBeep = Math.ceil(previousBeep) - latencyInBeat;
+        if (intBeat !== -1) {
+            previousBeep = Math.ceil(previousBeep) - latencyInBeat;
+        }
     });
 
     //received beat and phase
@@ -161,8 +163,9 @@
             //blink
             blink();
             //play the sample if latency compensation is enabled
-            if (isLatencyCompensationEnabled === false)
+            if (isLatencyCompensationEnabled === false) {
                 beep();
+            }
             //update the page
             intBeat = Math.floor(msg.beat);
             $('#beat').html(intBeat);
@@ -172,8 +175,9 @@
         //play the sample before the exact beat of the latency amount
         if (msg.beat > previousBeep + 1) {
             previousBeep++;
-            if (isLatencyCompensationEnabled === true)
+            if (isLatencyCompensationEnabled === true) {
                 beep();
+            }
         }
 
         //update the phase
@@ -190,14 +194,14 @@
     }
     socket.on('disableLatencyCompensation', function () {
         isLatencyCompensationEnabled = false;
-        $('#latencyCompensationSwitch').removeProp('checked');
+        document.getElementById("latencyCompensationSwitch").checked = false;
     });
     let enableLatencyCompensation = function () {
         socket.emit("enableLatencyCompensation");
     }
     socket.on('enableLatencyCompensation', function () {
         isLatencyCompensationEnabled = true;
-        $('#latencyCompensationSwitch').prop('checked', "true");
+        document.getElementById("latencyCompensationSwitch").checked = true;
     });
 </script>
 

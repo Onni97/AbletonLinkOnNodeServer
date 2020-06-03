@@ -136,10 +136,10 @@ let latencyCompensation = true;
 
 //on connection the socket will send the params to the client
 io.on('connection', (socket) => {
-    socket.emit("numPeers", link.getNumPeers());
-    socket.emit("tempo", link.getTempo(true));
-    socket.emit("startStopSyncEnabled", link.isStartStopSyncEnabled());
-    socket.emit("beatPhase", {
+    socket.emit("init", {
+        "numPeers": link.getNumPeers(),
+        "tempo": link.getTempo(true),
+        "startStopSyncEnabled": link.isStartStopSyncEnabled(),
         "beat": link.getBeat(),
         "phase": link.getPhase()
     });

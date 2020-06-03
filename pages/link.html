@@ -8,7 +8,8 @@
     <link rel="stylesheet" type="text/css" href="../static/style/styleLink.css"/>
     <script src="/socket.io/socket.io.js"></script>
     <script src="../static/js/jquery-3.4.1.min.js"></script>
-    <script src="../static/js/howler.min.js"></script>
+    <script src="../static/js/lowLag.js"></script>
+    <script src="../static/js/soundmanager2-nodebug-jsmin.js"></script>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
 </head>
 
@@ -57,7 +58,8 @@
             </td>
             <td class="colSettingToggle align-items-center">
                 <label class="switch">
-                    <input type="checkbox" id="latencyCompensationSwitch" autocomplete="off" onclick="latencyCompensationToggle()">
+                    <input type="checkbox" id="latencyCompensationSwitch" autocomplete="off"
+                           onclick="latencyCompensationToggle()">
                     <span class="slider round"></span>
                 </label>
             </td>
@@ -66,7 +68,6 @@
 
 
 </div>
-
 
 
 <footer></footer>
@@ -103,6 +104,9 @@
     let intBeat = -1;
     let intPhase = -1;
 
+    lowLag.init({'urlPrefix': '../static/sounds/'});
+    lowLag.load(["sample.mp3", "sample.ogg"], "sample");
+
 
     //function to activate dedactivate the audio
     let audioToggle = function () {
@@ -135,29 +139,40 @@
     //function to play the sample if audio is on
     function beep() {
         if (isAudioOn === true) {
-            sample.play();
+            lowLag.play('sample');
         }
     }
 
 
+    //init of socket.io
+    socket.on('init', function (msg) {
+        //manage latency
+        latencyInBeat = (msg.tempo / 60) * latency;
+        previousBeep = Math.ceil(msg.beat) - latencyInBeat;
+
+        //update values
+        intBeat = Math.floor(msg.beat);
+        $('#beat').html(intBeat);
+
+        intPhase = Math.floor(msg.phase);
+        $('#phase').html(intPhase);
+
+        $('#tempo').html(msg.tempo);
+    });
+
+
     //when tempo change
     socket.on('tempo', function (msg) {
-        //update tempo in the page
-        $('#tempo').html(msg);
         //update the parameters for latency
         latencyInBeat = (msg / 60) * latency;
-        if (intBeat !== -1) {
-            previousBeep = Math.ceil(previousBeep) - latencyInBeat;
-        }
+        previousBeep = Math.ceil(previousBeep) - latencyInBeat;
+
+        //update tempo in the page
+        $('#tempo').html(msg);
     });
 
     //received beat and phase
     socket.on('beatPhase', function (msg) {
-        //if is the first message, set the latency parameter
-        if (intBeat === -1) {
-            previousBeep = Math.ceil(msg.beat) - latencyInBeat;
-        }
-
         //if the beat is changed
         if (Math.floor(msg.beat) !== intBeat) {
             //blink

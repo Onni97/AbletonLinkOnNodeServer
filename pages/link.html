@@ -110,15 +110,7 @@
 
     //function to activate dedactivate the audio
     let audioToggle = function () {
-        if (isAudioOn === true) {
-            isAudioOn = false;
-        } else {
-            isAudioOn = true;
-            if (sample === undefined) {
-                //if sample is not defined define it
-                sample = new Howl({src: ['../static/sounds/sample.mp3']});
-            }
-        }
+        isAudioOn = isAudioOn !== true;
     }
 
     //function to activate dedactivate the latency compensation

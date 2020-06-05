@@ -25,6 +25,23 @@
    </div>
 </div>
 
+<div class="row" style="margin-bottom: 1em">
+    <div class="col">
+        <h3>Or directly measure your latency</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col colCard d-flex align-items-center">
+        <div class="card mx-auto" onclick="latencyMeasurement()">
+            <img class="card-img-top" src="/static/images/ruler.svg" alt="Card image cap">
+            <div class="card-body">
+                <h4 class="card-title">Measure</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="application/javascript">
     //when clicked on the choice
     function clicked(choice) {
@@ -37,6 +54,11 @@
             device.isPC = false;
             changeSelection(window.location.href + "deviceSelectModel");
         }
+    }
+
+    //function to pass to latency measurement
+    function latencyMeasurement() {
+        window.location.href = window.location.href + "latencyMeasurement";
     }
 </script>
 

@@ -169,7 +169,7 @@
         if (Math.floor(msg.beat) !== intBeat) {
             //blink
             blink();
-            //play the sample if latency compensation is enabled
+            //play the sample if latency compensation is disabled
             if (isLatencyCompensationEnabled === false) {
                 beep();
             }

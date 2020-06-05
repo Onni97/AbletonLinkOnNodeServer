@@ -3,8 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <title>Link</title>
+    <link rel="stylesheet" type="text/css" href="../static/style/bootstrap-4.4.1.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/style/style.css"/>
+    <script src="../static/js/jquery-3.4.1.min.js"></script>
+    <script src="../static/js/p5.min.js"></script>
+    <script src="../static/js/p5.sound.min.js"></script>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
 </head>
 <body>
 
+<footer></footer>
 </body>
+
+
+<script type="application/javascript">
+    //get the footer
+    $.ajax({
+        url: window.location.href.substring(0, window.location.href.length - 18) + "footer",
+        type: 'get',
+        success: function (response) {
+            //add response in the footer
+            $('footer').html(response);
+        },
+        async: true
+    });
+
+
+    //function to go on the link page
+    let goOnLink = function (latency) {
+        //send the selected device data to the server
+        console.log( window.location.href + "/setLatency");
+        $.ajax({
+            url: window.location.href + "/setLatency",
+            type: 'post',
+            data: {
+                "latency": latency,
+            },
+            success: function (response) {
+                console.log("aaaa");
+                //go on the link data page
+                window.location.href = window.location.href.substring(0, window.location.href.length - 18) + "link";
+            },
+            async: true
+        });
+    }
+</script>
 </html>

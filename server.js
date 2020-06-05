@@ -96,9 +96,15 @@ app.post('/setDevice', (req, res) => {
     }
 });
 
+//the page to measure tha latency
+app.get('/latencyMeasurement', (req,res) => {
+    res.sendFile(__dirname + '/pages/latencyMeasurement.html');
+});
+
 //method to get the latency from the latency measurement page and store it in the session
-app.post('/setLatency', (req, res) => {
+app.post('/latencyMeasurement/setLatency', (req, res) => {
     req.session.deviceLatency = req.body.latency;
+    res.sendStatus(200);
 });
 
 //the page that shows the link session informations

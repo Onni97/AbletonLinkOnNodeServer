@@ -91,6 +91,12 @@
     visibility: hidden !important;
 }
 
+.startMeasurement {
+    position: relative;
+    margin-right: auto;
+    margin-left: auto;
+}
+
 
 
 

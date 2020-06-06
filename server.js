@@ -9,8 +9,8 @@ const options = {
     cert: fs.readFileSync(__dirname + '/resources/cert.pem')
 };
 const https = require("https");
-
 app.use('/static', express.static(__dirname + '/static'));
+let server = https.createServer(options, app);
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(session({
@@ -140,7 +140,7 @@ app.get('/footer', (req, res) => {
 
 
 //SETUP SOCKET.IO
-const io = require('socket.io')(http);
+const io = require('socket.io')(server);
 
 //create Link instance
 const AbletonLink = require("abletonlink-addon");
@@ -198,7 +198,6 @@ setInterval(() => {
 
 
 //start listening
-let server = https.createServer(options, app);
-http.listen(3000, () => {
+server.listen(3000, () => {
     console.log('listening on port 3000');
 });

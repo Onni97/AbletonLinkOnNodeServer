@@ -133,4 +133,8 @@ input:checked + .slider:before {
         margin-right: auto;
         margin-left: auto;
     }
+
+    .main {
+        margin-top: 2em;
+    }
 }

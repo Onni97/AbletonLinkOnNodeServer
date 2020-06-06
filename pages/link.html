@@ -9,6 +9,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="../static/js/jquery-3.4.1.min.js"></script>
     <script src="../static/js/lowLag.js"></script>
+    <script src="../static/js/howler.min.js"></script>
     <script src="../static/js/soundmanager2-nodebug-jsmin.js"></script>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
 </head>
@@ -69,7 +70,7 @@
 
 </div>
 
-
+<input type="submit" onclick="sample.play()" value="Play" />
 <footer></footer>
 </body>
 
@@ -86,6 +87,10 @@
         async: true
     });
 
+    if('webkitAudioContext' in window) {
+        var myAudioContext = new webkitAudioContext();
+    }
+
     //socket
     const socket = io();
 
@@ -98,14 +103,15 @@
     let latencyInBeat;
     let previousBeep = -1;
     //latency that will be set from the server
-    let latency = LATECY_TO_REPLACE;
+    let latency = LATENCY_TO_REPLACE;
 
     //other parameters
     let intBeat = -1;
     let intPhase = -1;
 
-    lowLag.init({'urlPrefix': '../static/sounds/'});
-    lowLag.load(["sample.mp3", "sample.ogg"], "sample");
+    //lowLag.init({'urlPrefix': '../static/sounds/'});
+    //lowLag.load(["sample.mp3", "sample.ogg"], "sample");
+    sample = new Howl({src: ['../static/sounds/sample.mp3'], html5: true});
 
 
     //function to activate dedactivate the audio
@@ -131,7 +137,8 @@
     //function to play the sample if audio is on
     function beep() {
         if (isAudioOn === true) {
-            lowLag.play('sample');
+            sample.play();
+            //lowLag.play('sample');
         }
     }
 

@@ -121,7 +121,7 @@ app.get('/link', (req, res) => {
                 console.log(err);
                 res.sendStatus(500);
             } else {
-                let page = data.toString().replace("LATECY_TO_REPLACE", deviceLatency);
+                let page = data.toString().replace("LATENCY_TO_REPLACE", deviceLatency);
                 res.send(page);
             }
         });

@@ -57,7 +57,7 @@ Al termine degli M cicli:
 
 
     //n° misurazioni
-    const M = 10;
+    const M = 2;
     //Nell'ordine microfono, bottone e oscillator
     let mic, calcButton, osc;
     //Tempo di inizio della nota
@@ -211,7 +211,7 @@ Al termine degli M cicli:
         }
         //Arrotondo la media dei valori centrali.
         res = Math.round(sum/(count));
-        goOnLink(res/2);
+        goOnLink(res/2000);
         //stampa latenza
         console.log('Latency Approx to: ' + Math.round(sum/(count)));
     }

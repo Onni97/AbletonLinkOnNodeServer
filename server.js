@@ -4,6 +4,11 @@ const app = express();
 const http = require('http').createServer(app);
 const fs = require('fs');
 const session = require('express-session');
+const options = {
+    key: fs.readFileSync(__dirname + '/resources/key.pem'),
+    cert: fs.readFileSync(__dirname + '/resources/cert.pem')
+};
+const https = require("https");
 
 app.use('/static', express.static(__dirname + '/static'));
 app.use(express.json());
@@ -97,7 +102,7 @@ app.post('/setDevice', (req, res) => {
 });
 
 //the page to measure tha latency
-app.get('/latencyMeasurement', (req,res) => {
+app.get('/latencyMeasurement', (req, res) => {
     res.sendFile(__dirname + '/pages/latencyMeasurement.html');
 });
 
@@ -193,6 +198,7 @@ setInterval(() => {
 
 
 //start listening
+let server = https.createServer(options, app);
 http.listen(3000, () => {
     console.log('listening on port 3000');
 });

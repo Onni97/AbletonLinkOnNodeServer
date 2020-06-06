@@ -65,12 +65,16 @@
                 </label>
             </td>
         </tr>
+        <tr>
+            <td class="colSettingDescription">
+                Your latency: <span class="latencyLabel">ms</span>
+            </td>
+        </tr>
     </table>
 
 
 </div>
 
-<input type="submit" onclick="sample.play()" value="Play" />
 <footer></footer>
 </body>
 
@@ -217,6 +221,8 @@
         isLatencyCompensationEnabled = true;
         document.getElementById("latencyCompensationSwitch").checked = true;
     });
+
+    $('.latencyLabel').html(latency);
 </script>
 
 

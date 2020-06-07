@@ -1,11 +1,10 @@
 # AbletonLinkOnNodeServer
-### [Working on latency compensation for mobiles]
 
 A Node server that uses the Ableton Link protocol, implemented using [abletonlink-node-addon](https://github.com/Onni97/abletonlink-node-addon).
 
-It serves a page to see the data of the Ableton Link session that is running on the same WiFi.
+It serves a page to see the data of the Ableton Link session that is running on the same Wi-Fi.
 
-The page will play a sound on the beat change, there is an audio latency compensation system made by me usings the Superpowered audio latency table.
+The page will play a sound on the beat change, compensating the device latency.
 
 
 ## Tested Env
@@ -64,10 +63,6 @@ http://*IP*:3000/
 
 ## License
 MIT
-
-
-## Author
-Me, [Alessandro Oniarti](https://github.com/Onni97)
 
 ## Thanks
 - [Superpowered](https://superpowered.com/) for the audio latency table

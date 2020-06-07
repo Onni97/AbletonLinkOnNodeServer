@@ -57,7 +57,7 @@ Al termine degli M cicli:
 
 
     //n° misurazioni
-    const M = 2;
+    const M = 10;
     //Nell'ordine microfono, bottone e oscillator
     let mic, calcButton, osc;
     //Tempo di inizio della nota
@@ -90,7 +90,7 @@ Al termine degli M cicli:
     //audioContext
     let audioCtx;
     //Threshold variazione volume.
-    const thr = 0.01;
+    const thr = 0.005;
 
     function setup() {
         audioCtx = new (window.AudioContext || window.webkitAudioContext) ();
@@ -157,13 +157,13 @@ Al termine degli M cicli:
             calcButton.hide();
         }
         else if(playing){
-            console.log(extlevel);
+            //console.log(extlevel);
             calcButton.hide();
-            console.log('Ext Level ' + extlevel);
+            //console.log('Ext Level ' + extlevel);
             //calcolo livello attuale.
             level = mic.getLevel();
-            console.log('Interno ' + level);
-            console.log('Diff ' + (level - extlevel));
+            //console.log('Interno ' + level);
+            //console.log('Diff ' + (level - extlevel));
             //se level è aumentato di almeno 0.05 => nota tornata.
             if((level - extlevel) > thr){
                 //fermo l'oscillator => playing = false.
@@ -175,9 +175,9 @@ Al termine degli M cicli:
                 startTime = Date.now();
                 //calcolo latenza.
                 latency = finishTime - initTime;
-                console.log('\nLatency ' + n + ' : ' + latency);
-                //Se superiore a 1000 non lo considero, errori vari.
-                if(latency < 1000){
+                //console.log('\nLatency ' + n + ' : ' + latency);
+                //Se superiore a 1000 o minore di 5 non lo considero, errori vari.
+                if(latency < 1000 && latency > 5){
                     mis[n] = latency;
                     n++;
                 }

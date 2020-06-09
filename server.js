@@ -194,7 +194,7 @@ setInterval(() => {
         "beat": link.getBeat(),
         "phase": link.getPhase()
     });
-}, 6);
+}, 5);
 
 
 //start listening

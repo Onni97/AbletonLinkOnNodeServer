@@ -92,6 +92,7 @@ app.get('/deviceSelectVersion', (req, res) => {
 
 //method to confirm the choice and store the related latency in the session
 app.post('/setDevice', (req, res) => {
+    req.session.isMeasured = false;
     if (req.body.isPC === "true") {
         req.session.deviceLatency = 0;
         res.sendStatus(200);
@@ -109,6 +110,7 @@ app.get('/latencyMeasurement', (req, res) => {
 //method to get the latency from the latency measurement page and store it in the session
 app.post('/latencyMeasurement/setLatency', (req, res) => {
     req.session.deviceLatency = req.body.latency;
+    req.session.isMeasured = true;
     res.sendStatus(200);
 });
 
@@ -127,6 +129,8 @@ app.get('/link', (req, res) => {
                 res.sendStatus(500);
             } else {
                 let page = data.toString().replace("LATENCY_TO_REPLACE", deviceLatency);
+                page = page.replace("IS_LATENCY_MEASURED_TO_REPLACE", req.session.isMeasured);
+                console.log(deviceLatency);
                 res.send(page);
             }
         });

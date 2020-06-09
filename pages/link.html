@@ -91,10 +91,6 @@
         async: true
     });
 
-    if('webkitAudioContext' in window) {
-        var myAudioContext = new webkitAudioContext();
-    }
-
     //socket
     const socket = io();
 
@@ -108,6 +104,7 @@
     let previousBeep = -1;
     //latency that will be set from the server
     let latency = LATENCY_TO_REPLACE;
+    let isLatencyMeasured = IS_LATENCY_MEASURED_TO_REPLACE;
 
     //other parameters
     let intBeat = -1;
@@ -150,6 +147,14 @@
     //init of socket.io
     socket.on('init', function (msg) {
         //manage latency
+        if (isLatencyMeasured === false) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext) ();
+            latency = audioCtx.baseLatency + latency;
+            console.log(audioCtx + " " + latency);
+        }
+        $('.latencyLabel').html(latency);
+        console.log(latency);
+
         latencyInBeat = (msg.tempo / 60) * latency;
         previousBeep = Math.ceil(msg.beat) - latencyInBeat;
 
@@ -221,8 +226,6 @@
         isLatencyCompensationEnabled = true;
         document.getElementById("latencyCompensationSwitch").checked = true;
     });
-
-    $('.latencyLabel').html(latency);
 </script>
 
 

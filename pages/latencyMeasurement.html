@@ -57,7 +57,7 @@ Al termine degli M cicli:
 
 
     //n° misurazioni
-    const M = 4;
+    const M = 10;
     //Nell'ordine microfono, bottone e oscillator
     let mic, calcButton, osc;
     //Tempo di inizio della nota
@@ -68,10 +68,6 @@ Al termine degli M cicli:
     let level,extlevel;
     //Tempo inizio misurazione livello ambiente.
     let startTime = Date.now();
-    //frequenza attualmente scelta
-    let note = 0;
-    //Array delle frequenze
-    let freqs = [440, 19000, 20000, 21000];
     //valore della latenza.
     let latency = 0;
     //booleano per sapere se sta venendo riprodotto il suono o meno
@@ -110,7 +106,7 @@ Al termine degli M cicli:
         //Oscillatore per produrre il suono
         osc = new p5.Oscillator('sine');
         //Nota assegnata
-        osc.freq(freqs[note]);
+        osc.freq(1000);
         //Amplitude massima
         osc.amp(1);
 

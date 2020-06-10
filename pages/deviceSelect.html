@@ -25,7 +25,8 @@
     let device = {
         "isPC": null,
         "model": null,
-        "version": null
+        "version": null,
+        "browser": null
     }
 
     //get the footer
@@ -81,7 +82,8 @@
             data: {
                 "isPC": device.isPC,
                 "model": device.model,
-                "version": device.version
+                "version": device.version,
+                "browser": device.browser
             },
             success: function (response) {
                 //go on the link data page

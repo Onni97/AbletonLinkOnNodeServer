@@ -67,7 +67,7 @@
         </tr>
         <tr>
             <td class="colSettingDescription">
-                Your latency: <span class="latencyLabel">ms</span>
+                Your audio latency: <span class="latencyLabel">ms</span>
             </td>
         </tr>
     </table>
@@ -75,6 +75,7 @@
 
 </div>
 
+<div id="log"></div>
 <footer></footer>
 </body>
 
@@ -90,6 +91,7 @@
         },
         async: true
     });
+
 
     //socket
     const socket = io();
@@ -110,14 +112,16 @@
     let intBeat = -1;
     let intPhase = -1;
 
-    //lowLag.init({'urlPrefix': '../static/sounds/'});
-    //lowLag.load(["sample.mp3", "sample.ogg"], "sample");
-    sample = new Howl({src: ['../static/sounds/sample.mp3'], html5: true});
-
 
     //function to activate dedactivate the audio
+    let audioOk = false;
     let audioToggle = function () {
         isAudioOn = isAudioOn !== true;
+        if(audioOk === false) {
+            lowLag.init({'urlPrefix': '../static/sounds/'});
+            lowLag.load(["sample.mp3", "sample.ogg"], "sample");
+            audioOk = true;
+        }
     }
 
     //function to activate dedactivate the latency compensation
@@ -138,8 +142,7 @@
     //function to play the sample if audio is on
     function beep() {
         if (isAudioOn === true) {
-            sample.play();
-            //lowLag.play('sample');
+            lowLag.play('sample');
         }
     }
 
@@ -147,13 +150,14 @@
     //init of socket.io
     socket.on('init', function (msg) {
         //manage latency
+
         if (isLatencyMeasured === false) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext) ();
-            latency = audioCtx.baseLatency + latency;
-            console.log(audioCtx + " " + latency);
+            if (!isNaN(audioCtx.baseLatency)) {
+                latency = audioCtx.baseLatency + latency;
+            }
         }
         $('.latencyLabel').html(latency);
-        console.log(latency);
 
         latencyInBeat = (msg.tempo / 60) * latency;
         previousBeep = Math.ceil(msg.beat) - latencyInBeat;
@@ -226,6 +230,10 @@
         isLatencyCompensationEnabled = true;
         document.getElementById("latencyCompensationSwitch").checked = true;
     });
+
+    window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+        document.getElementById('log').innerText += errorMsg + '\r\n';
+    }
 </script>
 
 

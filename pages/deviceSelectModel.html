@@ -7,7 +7,7 @@
     //function to go to the next subpage
     function clicked(choice) {
         device.model = choice;
-        changeSelection(window.location.href + "deviceSelectVersion?vendor=" + device.vendor + "&model=" + choice);
+        changeSelection(window.location.href + "deviceSelectVersion?model=" + choice);
     }
 </script>
 
@@ -40,7 +40,7 @@
 <!-- The container will be filled with ajax for the infinite scroll -->
 <div class="row" id="container"></div>
 <img id="loader" src="static/images/loader2.gif" alt="loader"/>
-<h3 hidden id="finish">No more devices</h3>
+<h3 hidden id="finish"></h3>
 
 
 <script type="application/javascript">

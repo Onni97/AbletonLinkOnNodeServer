@@ -20,8 +20,11 @@ app.use(session({
 }));
 
 
-//load device-latencies.json file
-let deviceLatencies = require(__dirname + '/resources/device-latencies.json');
+//load device-latencies.json file (Superpowered)
+//let deviceLatencies = require(__dirname + '/resources/device-latencies.json');
+
+//load device-latencies.json file (Superpowered)
+let deviceLatencies = require(__dirname + '/resources/devicesNew.json');
 
 
 //the initial page allows to select the device
@@ -90,14 +93,55 @@ app.get('/deviceSelectVersion', (req, res) => {
     });
 });
 
+//subpage to select the browser
+app.get('/deviceSelectBrowser', (req, res) => {
+    //load the html file
+    fs.readFile(__dirname + '/pages/deviceSelectBrowser.html', function (err, data) {
+        if (err) {
+            console.log(err);
+            res.sendStatus(500);
+        } else {
+            //get the selected model and version from the url
+            let keys = Object.keys(deviceLatencies[req.query.model][req.query.version]);
+            //insert the browsers in the page and then return the generated file
+            let stringToInsert = "";
+            keys.forEach(function (item) {
+                stringToInsert += '<div class="col colCard d-flex align-items-center">\n' +
+                    '        <div class="card noPhoto mx-auto" onclick="clicked(\'' + item + '\')">\n' +
+                    '            <div class="card-body">\n' +
+                    '                <h5 class="card-title">' + item + '</h5>\n' +
+                    '            </div>\n' +
+                    '        </div>\n' +
+                    '    </div>';
+            })
+            let page = data.toString().replace("TO_REPLACE", stringToInsert);
+            res.send(page);
+        }
+    });
+});
+
+//method for the superPowered table
 //method to confirm the choice and store the related latency in the session
+//app.post('/setDevice', (req, res) => {
+//    req.session.isMeasured = false;
+//    if (req.body.isPC === "true") {
+//        req.session.deviceLatency = 0;
+//        res.sendStatus(200);
+//    } else {
+//        req.session.deviceLatency = deviceLatencies[req.body.model][req.body.version] / 2000;
+//        res.sendStatus(200);
+//    }
+//});
+
+//method for our table
 app.post('/setDevice', (req, res) => {
-    req.session.isMeasured = false;
     if (req.body.isPC === "true") {
+        req.session.isMeasured = false;
         req.session.deviceLatency = 0;
         res.sendStatus(200);
     } else {
-        req.session.deviceLatency = deviceLatencies[req.body.model][req.body.version] / 2000;
+        req.session.isMeasured = true;
+        req.session.deviceLatency = deviceLatencies[req.body.model][req.body.version][req.body.browser] / 1000;
         res.sendStatus(200);
     }
 });
@@ -130,7 +174,6 @@ app.get('/link', (req, res) => {
             } else {
                 let page = data.toString().replace("LATENCY_TO_REPLACE", deviceLatency);
                 page = page.replace("IS_LATENCY_MEASURED_TO_REPLACE", req.session.isMeasured);
-                console.log(deviceLatency);
                 res.send(page);
             }
         });

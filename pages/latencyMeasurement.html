@@ -37,12 +37,12 @@ Nuovo metodo:
 Appare il bottone.
 M cicli.
 Ad ogni ciclo:
-              *  Per 2s circa salvo varie misurazioni del
+              *  Per 1.5s circa salvo varie misurazioni del
                  del livello di rumore della stanza e ne salvo
                  poi la media (in extlevel).
               *  Synth fa partire una nota. Salvo il tempo.
               *  Ascolto il livello => Se l'amplitude aumenta
-                 di almeno 0.05 (level - extlevel > 0.05) la
+                 di almeno thr (level - extlevel > thr) la
                  la nota è stata recepita.
                  Calcolo il deta in tempo. Questo rappresenta
                  un RTT, il valore viene inserito in un array
@@ -65,7 +65,8 @@ Al termine degli M cicli:
     //Tempo al quale viene percepita
     let finishTime = -1;
     //Rispettivamente livello del microfono quando sta suonando e quando sta ascoltando (media di extlevels).
-    let level,extlevel;
+    let level = 0;
+    let extlevel = 0;
     //Tempo inizio misurazione livello ambiente.
     let startTime = Date.now();
 
@@ -87,7 +88,7 @@ Al termine degli M cicli:
     //audioContext
     let audioCtx;
     //Threshold variazione volume.
-    let thr = 0.005;
+    let thr = 0.01;
 
     //value
     const freq = 440;
@@ -105,6 +106,8 @@ Al termine degli M cicli:
 
         //MicInput
         mic = new p5.AudioIn();
+        mic.start();
+
 
         //Creo il bottone.
         calcButton = createButton('Start Calculation');
@@ -129,7 +132,7 @@ Al termine degli M cicli:
             mis = [];
             //ogni 4s manda un ciclo di misurazione
             interval = setInterval( () =>{
-                if(n < M && playing === false){
+                if(n < M){
                     extlevels = [];
                     sum = 0;
                     //stoppo il synth (double call, dovrebbe essersi già stoppato).
@@ -148,9 +151,8 @@ Al termine degli M cicli:
         //timeout per rumore iniziale della stanza
         setTimeout(() =>{
             calcButton.show();
-        },3000);
+        }, 3000);
         //mic.connect(osc);
-        mic.start();
         startTime = Date.now();
     }
 
@@ -175,7 +177,12 @@ Al termine degli M cicli:
             level = mic.getLevel();
             //console.log('Interno ' + level);
             //console.log('Diff ' + (level - extlevel));
-            //se level è aumentato di almeno 0.05 => nota tornata.
+
+            if(Date.now() - startTime > 4000){
+              osc.stop(0);
+              playing = false;
+            }
+            //se level è aumentato di almeno thr => nota tornata.
             if((level - extlevel) > thr){
                 //fermo l'oscillator => playing = false.
                 osc.stop(0);

@@ -178,10 +178,6 @@ Al termine degli M cicli:
             //console.log('Interno ' + level);
             //console.log('Diff ' + (level - extlevel));
 
-            if(Date.now() - startTime > 4000){
-              osc.stop(0);
-              playing = false;
-            }
             //se level è aumentato di almeno thr => nota tornata.
             if((level - extlevel) > thr){
                 //fermo l'oscillator => playing = false.

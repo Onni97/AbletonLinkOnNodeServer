@@ -68,6 +68,7 @@ Al termine degli M cicli:
     let level,extlevel;
     //Tempo inizio misurazione livello ambiente.
     let startTime = Date.now();
+
     //valore della latenza.
     let latency = 0;
     //booleano per sapere se sta venendo riprodotto il suono o meno
@@ -86,10 +87,17 @@ Al termine degli M cicli:
     //audioContext
     let audioCtx;
     //Threshold variazione volume.
-    const thr = 0.005;
+    let thr = 0.005;
+
+    //value
+    const freq = 440;
+
+    let filter;
+    let widthfilter = 50;
 
     function setup() {
         audioCtx = new (window.AudioContext || window.webkitAudioContext) ();
+
         //Inizialmente 0 misurazioni e 0 per la somma.
         n=0;
         sum = 0;
@@ -106,10 +114,13 @@ Al termine degli M cicli:
         //Oscillatore per produrre il suono
         osc = new p5.Oscillator('sine');
         //Nota assegnata
-        osc.freq(440);
+        osc.freq(freq);
         //Amplitude massima
         osc.amp(1);
 
+        //filter = new p5.BandPass();
+        //filter.set(freq,widthfilter);
+        //mic.connect(filter);
         //Sostituire con touchStarted per i telefoni
         calcButton.mousePressed(() => {
             audioCtx.resume();
@@ -120,6 +131,7 @@ Al termine degli M cicli:
             interval = setInterval( () =>{
                 if(n < M && playing === false){
                     extlevels = [];
+                    sum = 0;
                     //stoppo il synth (double call, dovrebbe essersi già stoppato).
                     osc.stop(0);
                     //Booleano per segnalare che stia andando.
@@ -128,7 +140,7 @@ Al termine degli M cicli:
                     initTime = Date.now();
                     osc.start(0);
                 }
-            }, 4000);
+            }, 5000);
         });
         //sampleRate(44100);
         //frameRate(36000);
@@ -136,7 +148,8 @@ Al termine degli M cicli:
         //timeout per rumore iniziale della stanza
         setTimeout(() =>{
             calcButton.show();
-        },2000);
+        },3000);
+        //mic.connect(osc);
         mic.start();
         startTime = Date.now();
     }
@@ -145,15 +158,16 @@ Al termine degli M cicli:
         background(243,242,242);
         fill('black');
         textSize(width/16);
-        text('Misurazioni: ' + n, width/16, height/2);
+        text('\n\nMisurazioni: ' + n, width/16, height/2);
         //Per 2s ascolto il rumore della stanza.
-        if(Date.now() - startTime < 2000){
+        if((Date.now() - startTime) > 1500 && (Date.now() - startTime) < 3000){
             extlevels.push(mic.getLevel());
             sum += extlevels[extlevels.length - 1];
             extlevel = sum / extlevels.length;
             calcButton.hide();
         }
         else if(playing){
+            extlevels = [];
             //console.log(extlevel);
             calcButton.hide();
             //console.log('Ext Level ' + extlevel);
@@ -165,6 +179,7 @@ Al termine degli M cicli:
             if((level - extlevel) > thr){
                 //fermo l'oscillator => playing = false.
                 osc.stop(0);
+                //Fermo ciclo per non considerarlo
                 playing = false;
                 //Tempo di fine.
                 finishTime = Date.now();
@@ -191,7 +206,7 @@ Al termine degli M cicli:
                 }
             }
         }
-        text(' Latency approx to: ' + res + ' ms', width/32, height/3);
+        text('Ext Level: ' + extlevel, width/32, height/3);
     }
 
     //Prende i valori centrali e fa la media, stoppa inoltre l'intervallo.
@@ -207,7 +222,7 @@ Al termine degli M cicli:
             console.log( sum + '  ' + mis[i] + '  ' + count);
         }
         //Arrotondo la media dei valori centrali.
-        res = Math.round(sum/(count));
+        res = sum/(count);
         goOnLink(res/2000);
         //stampa latenza
         console.log('Latency Approx to: ' + Math.round(sum/(count)));

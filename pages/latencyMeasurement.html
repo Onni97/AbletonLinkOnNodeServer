@@ -119,7 +119,8 @@ Al termine degli M cicli:
             //ogni 4s manda un ciclo di misurazione
             interval = setInterval( () =>{
                 if(n < M && playing === false){
-                    //stoppo il synth (double call, dovrebbe essersi già             stoppato).
+                    extlevels = [];
+                    //stoppo il synth (double call, dovrebbe essersi già stoppato).
                     osc.stop(0);
                     //Booleano per segnalare che stia andando.
                     playing = true;

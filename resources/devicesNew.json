@@ -30,5 +30,11 @@
         "Android 5.0":{
             "Chrome": 310.5
         }
+    },
+    "iPhone 7":{
+        "iOS 13.3":{
+            "Chrome": 63,
+            "Safari": 54
+       }
     }
 }

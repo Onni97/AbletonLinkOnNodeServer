@@ -8,10 +8,41 @@
     <link rel="stylesheet" type="text/css" href="../static/style/styleLink.css"/>
     <script src="/socket.io/socket.io.js"></script>
     <script src="../static/js/jquery-3.4.1.min.js"></script>
+    <script src="../static/jquery-ui.min.js"></script>
+    <script src="../static/jquery.ui.touch-punch.min.js"></script>
     <script src="../static/js/lowLag.js"></script>
     <script src="../static/js/howler.min.js"></script>
     <script src="../static/js/soundmanager2-nodebug-jsmin.js"></script>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
+    <style>
+    .ui-slider {
+    margin-top: 20px;
+    height: 7px;
+    width: 100%;
+    position: relative;
+    border: none;
+    background: #ff5b63;
+}
+  .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+    background: #ff5b63;
+    border-radius: 25px;
+    outline: none;
+    border: 2px solid #fff;
+    position: absolute;
+    top: -10px;
+}
+  .ui-slider-horizontal .ui-slider-range {
+    background: #e9ecf1
+}
+      #custom-handle {
+        width: 3em;
+        height: 1.6em;
+        top: 50%;
+        margin-top: -.8em;
+        text-align: center;
+        line-height: 1.6em;
+      }
+      </style>
 </head>
 
 <body>
@@ -38,7 +69,9 @@
 
 <div id="light" class="blink">
 </div>
-
+<div id="slider">
+  <div id="custom-handle" class="ui-slider-handle"></div>
+</div>
 
 <div class="settings card">
     <table>
@@ -67,15 +100,15 @@
         </tr>
         <tr>
             <td class="colSettingDescription">
-                Your audio latency: <span class="latencyLabel">ms</span>
+                Your latency: <span class="latencyLabel">ms</span>
             </td>
         </tr>
     </table>
-
-
 </div>
 
-<div id="log"></div>
+
+
+
 <footer></footer>
 </body>
 
@@ -92,6 +125,30 @@
         async: true
     });
 
+    //latency that will be set from the server
+    let latency = LATENCY_TO_REPLACE;
+    let tempo = 120;
+    $( function() {
+    var handle = $( "#custom-handle" );
+    $( "#slider" ).slider({
+      min: 0,
+      max: 300,
+      step:1,
+      create: function() {
+        handle.text( $( this ).slider( "value" ) );
+      },
+      slide: function( event, ui ) {
+        handle.text( ui.value );
+        latency = ui.value/1000;
+        latencyInBeat = (tempo / 60) * (latency);
+        console.log(latency);
+        previousBeep = Math.ceil(previousBeep) - latencyInBeat;
+        $('.latencyLabel').html(latency);
+      }
+    });
+  } );
+
+    audioCtx = new (window.AudioContext || window.webkitAudioContext) ();
 
     //socket
     const socket = io();
@@ -104,24 +161,20 @@
     let isLatencyCompensationEnabled;
     let latencyInBeat;
     let previousBeep = -1;
-    //latency that will be set from the server
-    let latency = LATENCY_TO_REPLACE;
-    let isLatencyMeasured = IS_LATENCY_MEASURED_TO_REPLACE;
+
 
     //other parameters
     let intBeat = -1;
     let intPhase = -1;
 
+    //lowLag.init({'urlPrefix': '../static/sounds/'});
+    //lowLag.load(["sample.mp3", "sample.ogg"], "sample");
+    sample = new Howl({src: ['../static/sounds/sample.mp3'], html5: true});
+
 
     //function to activate dedactivate the audio
-    let audioOk = false;
     let audioToggle = function () {
         isAudioOn = isAudioOn !== true;
-        if(audioOk === false) {
-            lowLag.init({'urlPrefix': '../static/sounds/'});
-            lowLag.load(["sample.mp3", "sample.ogg"], "sample");
-            audioOk = true;
-        }
     }
 
     //function to activate dedactivate the latency compensation
@@ -142,7 +195,8 @@
     //function to play the sample if audio is on
     function beep() {
         if (isAudioOn === true) {
-            lowLag.play('sample');
+            sample.play();
+            //lowLag.play('sample');
         }
     }
 
@@ -150,16 +204,8 @@
     //init of socket.io
     socket.on('init', function (msg) {
         //manage latency
-
-        if (isLatencyMeasured === false) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext) ();
-            if (!isNaN(audioCtx.baseLatency)) {
-                latency = audioCtx.baseLatency + latency;
-            }
-        }
-        $('.latencyLabel').html(latency);
-
-        latencyInBeat = (msg.tempo / 60) * latency;
+        tempo = msg.tempo;
+        latencyInBeat = (msg.tempo / 60) * (latency);
         previousBeep = Math.ceil(msg.beat) - latencyInBeat;
 
         //update values
@@ -176,7 +222,9 @@
     //when tempo change
     socket.on('tempo', function (msg) {
         //update the parameters for latency
-        latencyInBeat = (msg / 60) * latency;
+        tempo = msg;
+        latencyInBeat = (msg / 60) * (latency);
+        console.log(latency);
         previousBeep = Math.ceil(previousBeep) - latencyInBeat;
 
         //update tempo in the page
@@ -231,9 +279,7 @@
         document.getElementById("latencyCompensationSwitch").checked = true;
     });
 
-    window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-        document.getElementById('log').innerText += errorMsg + '\r\n';
-    }
+    $('.latencyLabel').html(latency );
 </script>
 
 

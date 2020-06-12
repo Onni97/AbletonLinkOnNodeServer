@@ -239,7 +239,8 @@ link.setStartStopCallback((startStopState) => io.emit('playState', startStopStat
 setInterval(() => {
     io.emit("beatPhase", {
         "beat": link.getBeat(),
-        "phase": link.getPhase()
+        "phase": link.getPhase(),
+        "date": Date.now()
     });
 }, 5);
 

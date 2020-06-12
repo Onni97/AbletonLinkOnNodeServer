@@ -234,7 +234,9 @@
     //received beat and phase
     socket.on('beatPhase', function (msg) {
         //Ricalibro con "date"
-        msg.beat = msg.beat + ((Date.now() - msg.date)*tempo/60);
+        let val = ((Date.now() - msg.date));
+        msg.beat = msg.beat + val*tempo/60000;
+        console.log(val + ' ' + (val*tempo/60000));
         //if the beat is changed
         if (Math.floor(msg.beat) !== intBeat) {
             //blink

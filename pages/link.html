@@ -234,11 +234,16 @@
     //received beat and phase
     socket.on('beatPhase', function (msg) {
         //Ricalibro con "date"
-        let val = ((Date.now() - msg.date));
-        msg.beat = msg.beat + val*tempo/60000;
-        console.log(val + ' ' + (val*tempo/60000));
+        //let val = ((Date.now() - msg.date))/1000;
+        /*if(val > 0){
+          msg.beat = msg.beat + val*tempo/60;
+          // %4 sarebbe in realtà modulo quanto è il tempo 4/4 in questo caso
+          msg.phase = (msg.phase + val*tempo/60)%4;
+        }*/
+        //$('#tempo').html(tempo + ' ' + val);
+        //console.log(val + ' ' + (val*tempo/60));
         //if the beat is changed
-        if (Math.floor(msg.beat) !== intBeat) {
+        if ((Math.floor(msg.beat) !== intBeat)) {
             //blink
             blink();
             //play the sample if latency compensation is disabled
@@ -252,9 +257,11 @@
         }
 
         //play the sample before the exact beat of the latency amount
-        if (msg.beat > previousBeep + 1) {
+        //console.log(previousBeep);
+        if ((msg.beat > previousBeep + 1)) {
             previousBeep++;
-            if (isLatencyCompensationEnabled === true) {
+            //previousBeep è aumentato di 1
+            if (isLatencyCompensationEnabled === true && (Math.abs(msg.beat - previousBeep) < ((tempo/60)*0.01))) {
                 beep();
             }
         }

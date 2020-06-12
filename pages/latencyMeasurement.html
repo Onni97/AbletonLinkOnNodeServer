@@ -1,292 +1,259 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Link</title>
     <link rel="stylesheet" type="text/css" href="../static/style/bootstrap-4.4.1.min.css"/>
     <link rel="stylesheet" type="text/css" href="../static/style/style.css"/>
-    <link rel="stylesheet" type="text/css" href="../static/style/styleLink.css"/>
-    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/style/styleDeviceSelect.css"/>
     <script src="../static/js/jquery-3.4.1.min.js"></script>
-    <script src="../static/jquery-ui.min.js"></script>
-    <script src="../static/jquery.ui.touch-punch.min.js"></script>
-    <script src="../static/js/lowLag.js"></script>
-    <script src="../static/js/howler.min.js"></script>
-    <script src="../static/js/soundmanager2-nodebug-jsmin.js"></script>
+    <script src="../static/js/p5.min.js"></script>
+    <script src="../static/js/p5.sound.min.js"></script>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
-    <style>
-    .ui-slider {
-    margin-top: 20px;
-    height: 7px;
-    width: 100%;
-    position: relative;
-    border: none;
-    background: #ff5b63;
-}
-  .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
-    background: #ff5b63;
-    border-radius: 25px;
-    outline: none;
-    border: 2px solid #fff;
-    position: absolute;
-    top: -10px;
-}
-  .ui-slider-horizontal .ui-slider-range {
-    background: #e9ecf1
-}
-      #custom-handle {
-        width: 3em;
-        height: 1.6em;
-        top: 50%;
-        margin-top: -.8em;
-        text-align: center;
-        line-height: 1.6em;
-      }
-      </style>
 </head>
-
 <body>
-
-<div class="main card">
-    <div class="row">
-        <div class="col-12">
-            Tempo<br/>
-            <span id="tempo"></span>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-6">
-            Beat<br/>
-            <span id="beat"></span>
-        </div>
-        <div class="col-6">
-            Phase<br/>
-            <span id="phase"></span>
-        </div>
-    </div>
-</div>
-
-
-<div id="light" class="blink">
-</div>
-<div id="slider">
-  <div id="custom-handle" class="ui-slider-handle"></div>
-</div>
-
-<div class="settings card">
-    <table>
-        <tr>
-            <td class="colSettingDescription">
-                Audio
-            </td>
-            <td class="colSettingToggle align-items-center">
-                <label class="switch">
-                    <input type="checkbox" id="audioSwitch" onclick="audioToggle()" autocomplete="off">
-                    <span class="slider round"></span>
-                </label>
-            </td>
-        </tr>
-        <tr>
-            <td class="colSettingDescription">
-                Latency Compensation
-            </td>
-            <td class="colSettingToggle align-items-center">
-                <label class="switch">
-                    <input type="checkbox" id="latencyCompensationSwitch" autocomplete="off"
-                           onclick="latencyCompensationToggle()">
-                    <span class="slider round"></span>
-                </label>
-            </td>
-        </tr>
-        <tr>
-            <td class="colSettingDescription">
-                Your latency: <span class="latencyLabel">ms</span>
-            </td>
-        </tr>
-    </table>
-</div>
-
-
-
 
 <footer></footer>
 </body>
 
 
 <script type="application/javascript">
-    //load the footer
+    //get the footer
     $.ajax({
-        url: window.location.href.substring(0, window.location.href.length - 4) + "footer",
+        url: window.location.href.substring(0, window.location.href.length - 18) + "footer",
         type: 'get',
         success: function (response) {
-            // Add response in mainPage
+            //add response in the footer
             $('footer').html(response);
         },
         async: true
     });
 
-    //latency that will be set from the server
-    let latency = LATENCY_TO_REPLACE;
-    let tempo = 120;
-    $( function() {
-    var handle = $( "#custom-handle" );
-    $( "#slider" ).slider({
-      min: 0,
-      max: 300,
-      step:1,
-      create: function() {
-        handle.text( $( this ).slider( "value" ) );
-      },
-      slide: function( event, ui ) {
-        handle.text( ui.value );
-        latency = ui.value/1000;
-        latencyInBeat = (tempo / 60) * (latency);
-        console.log(latency);
-        previousBeep = Math.ceil(previousBeep) - latencyInBeat;
-        $('.latencyLabel').html(latency);
-      }
-    });
-  } );
-
-    audioCtx = new (window.AudioContext || window.webkitAudioContext) ();
-
-    //socket
-    const socket = io();
-
-    //audio parameters
-    let sample;
-    let isAudioOn = false;
-
-    //latency parameters
-    let isLatencyCompensationEnabled;
-    let latencyInBeat;
-    let previousBeep = -1;
 
 
-    //other parameters
-    let intBeat = -1;
-    let intPhase = -1;
 
-    //lowLag.init({'urlPrefix': '../static/sounds/'});
-    //lowLag.load(["sample.mp3", "sample.ogg"], "sample");
-    sample = new Howl({src: ['../static/sounds/sample.mp3'], html5: true});
+    /*
+Nuovo metodo:
+Appare il bottone.
+M cicli.
+Ad ogni ciclo:
+              *  Per 1.5s circa salvo varie misurazioni del
+                 del livello di rumore della stanza e ne salvo
+                 poi la media (in extlevel).
+              *  Synth fa partire una nota. Salvo il tempo.
+              *  Ascolto il livello => Se l'amplitude aumenta
+                 di almeno thr (level - extlevel > thr) la
+                 la nota è stata recepita.
+                 Calcolo il deta in tempo. Questo rappresenta
+                 un RTT, il valore viene inserito in un array
+                 di misurazioni (mis);
+
+Al termine degli M cicli:
+              *  Le misurazioni vengono ordinate (mis.sort())
+              *  I valori centrali da 3/8*M a 5/8*M sono presi
+                 e ne viene fatta la media => questa è la
+                 latenza stimata.
+*/
 
 
-    //function to activate dedactivate the audio
-    let audioToggle = function () {
-        isAudioOn = isAudioOn !== true;
+    //n° misurazioni
+    const M = 10;
+    //Nell'ordine microfono, bottone e oscillator
+    let mic, calcButton, osc;
+    //Tempo di inizio della nota
+    let initTime = -1;
+    //Tempo al quale viene percepita
+    let finishTime = -1;
+    //Rispettivamente livello del microfono quando sta suonando e quando sta ascoltando (media di extlevels).
+    let level = 0;
+    let extlevel = 0;
+    //Tempo inizio misurazione livello ambiente.
+    let startTime = Date.now();
+
+    //valore della latenza.
+    let latency = 0;
+    //booleano per sapere se sta venendo riprodotto il suono o meno
+    let playing = false;
+    //n => misurazioni fatte, sum => somma misurazioni centrali
+    let n, sum;
+    //array delle misurazioni
+    let mis = [];
+    //Conterrà il valore finale.
+    let res = 'Nada';
+    //Conterrà l'intervallo (necessario per clear interval).
+    let interval;
+    //array misurazioni ambiente e somma delle stesse.
+    let extlevels = [];
+    let sumlevels;
+    //audioContext
+    let audioCtx;
+    //Threshold variazione volume.
+    let thr = 0.01;
+
+    //value
+    const freq = 440;
+
+    let filter;
+    let widthfilter = 50;
+
+    function setup() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext) ();
+
+        //Inizialmente 0 misurazioni e 0 per la somma.
+        n=0;
+        sum = 0;
+        createCanvas(400, 200);
+
+        //MicInput
+        mic = new p5.AudioIn();
+        mic.start();
+
+
+        //Creo il bottone.
+        calcButton = createButton('Start Calculation');
+        calcButton.addClass("btn btn-primary startMeasurement");
+        calcButton.hide();
+
+        //Oscillatore per produrre il suono
+        osc = new p5.Oscillator('sine');
+        //Nota assegnata
+        osc.freq(freq);
+        //Amplitude massima
+        osc.amp(1);
+
+        //filter = new p5.BandPass();
+        //filter.set(freq,widthfilter);
+        //mic.connect(filter);
+        //Sostituire con touchStarted per i telefoni
+        calcButton.mousePressed(() => {
+            audioCtx.resume();
+            calcButton.hide();
+            n=0;
+            mis = [];
+            //ogni 4s manda un ciclo di misurazione
+            interval = setInterval( () =>{
+                if(n < M){
+                    extlevels = [];
+                    sum = 0;
+                    //stoppo il synth (double call, dovrebbe essersi già stoppato).
+                    osc.stop(0);
+                    //Booleano per segnalare che stia andando.
+                    playing = true;
+                    //Tempo inizio playing dell'oscillator
+                    initTime = Date.now();
+                    osc.start(0);
+                }
+            }, 5000);
+        });
+        //sampleRate(44100);
+        //frameRate(36000);
+
+        //timeout per rumore iniziale della stanza
+        setTimeout(() =>{
+            calcButton.show();
+        }, 3000);
+        //mic.connect(osc);
+        startTime = Date.now();
     }
 
-    //function to activate dedactivate the latency compensation
-    let latencyCompensationToggle = function () {
-        isLatencyCompensationEnabled = isLatencyCompensationEnabled !== true;
-    }
-
-
-    //function to make the .blink class blink
-    function blink() {
-        const $blink = $('.blink');
-        $blink.addClass("active");
-        setTimeout(() => {
-            $blink.removeClass("active");
-        }, 100);
-    }
-
-    //function to play the sample if audio is on
-    function beep() {
-        if (isAudioOn === true) {
-            sample.play();
-            //lowLag.play('sample');
+    function draw() {
+        background(243,242,242);
+        fill('black');
+        textSize(width/16);
+        text('\n\nMisurazioni: ' + n, width/16, height/2);
+        //Per 2s ascolto il rumore della stanza.
+        if((Date.now() - startTime) > 1500 && (Date.now() - startTime) < 3000){
+            extlevels.push(mic.getLevel());
+            sum += extlevels[extlevels.length - 1];
+            extlevel = sum / extlevels.length;
+            calcButton.hide();
         }
-    }
+        else if(playing){
+            extlevels = [];
+            //console.log(extlevel);
+            calcButton.hide();
+            //console.log('Ext Level ' + extlevel);
+            //calcolo livello attuale.
+            level = mic.getLevel();
+            //console.log('Interno ' + level);
+            //console.log('Diff ' + (level - extlevel));
 
-
-    //init of socket.io
-    socket.on('init', function (msg) {
-        //manage latency
-        tempo = msg.tempo;
-        latencyInBeat = (msg.tempo / 60) * (latency);
-        previousBeep = Math.ceil(msg.beat) - latencyInBeat;
-
-        //update values
-        intBeat = Math.floor(msg.beat);
-        $('#beat').html(intBeat);
-
-        intPhase = Math.floor(msg.phase);
-        $('#phase').html(intPhase);
-
-        $('#tempo').html(msg.tempo);
-    });
-
-
-    //when tempo change
-    socket.on('tempo', function (msg) {
-        //update the parameters for latency
-        tempo = msg;
-        latencyInBeat = (msg / 60) * (latency);
-        console.log(latency);
-        previousBeep = Math.ceil(previousBeep) - latencyInBeat;
-
-        //update tempo in the page
-        $('#tempo').html(msg);
-    });
-
-    //received beat and phase
-    socket.on('beatPhase', function (msg) {
-        //Ricalibro con "date"
-        //differenza in tempo (in s => /1000)
-        let val = ((Date.now() - msg.date))/1000;
-        //ricalibro il beat => val*bps = beat da ricalibrare
-        msg.beat = msg.beat + val*tempo/60;
-        console.log(val + ' ' + (val*tempo/60));
-        //if the beat is changed
-        if (Math.floor(msg.beat) !== intBeat) {
-            //blink
-            blink();
-            //play the sample if latency compensation is disabled
-            if (isLatencyCompensationEnabled === false) {
-                beep();
+            //se level è aumentato di almeno thr => nota tornata.
+            if((level - extlevel) > thr){
+                //fermo l'oscillator => playing = false.
+                osc.stop(0);
+                //Fermo ciclo per non considerarlo
+                playing = false;
+                //Tempo di fine.
+                finishTime = Date.now();
+                //ristetto i tempi di ascolto.
+                startTime = Date.now();
+                //calcolo latenza.
+                latency = finishTime - initTime;
+                //console.log('\nLatency ' + n + ' : ' + latency);
+                //Se superiore a 1000 o minore di 5 non lo considero, errori vari.
+                if(latency < 1000 && latency > 5){
+                    mis[n] = latency;
+                    n++;
+                }
+                //Se ho già M misurazioni => fine procedura.
+                if(n === M){
+                    //n=0;
+                    osc.stop(0);
+                    calcButton.show();
+                    //Chiamo funzione finale
+                    cleanAndCalc();
+                    //rimuove chiamata all'intervallo
+                    clearInterval(interval);
+                    console.log("Interval Cleared");
+                }
             }
-            //update the page
-            intBeat = Math.floor(msg.beat);
-            $('#beat').html(intBeat);
-
         }
-
-        //play the sample before the exact beat of the latency amount
-        if (msg.beat > previousBeep + 1) {
-            previousBeep++;
-            if (isLatencyCompensationEnabled === true) {
-                beep();
-            }
-        }
-
-        //update the phase
-        if (Math.floor(msg.phase) !== intPhase) {
-            intPhase = Math.floor(msg.phase);
-            $('#phase').html(intPhase);
-        }
-    });
-
-
-    //functions to disable/enable latency compensation
-    let disableLatencyCompensation = function () {
-        socket.emit("disableLatencyCompensation");
+        text('Ext Level: ' + extlevel, width/32, height/3);
+        text('\nInt Level: ' + level, width/32, height/3);
     }
-    socket.on('disableLatencyCompensation', function () {
-        isLatencyCompensationEnabled = false;
-        document.getElementById("latencyCompensationSwitch").checked = false;
-    });
-    let enableLatencyCompensation = function () {
-        socket.emit("enableLatencyCompensation");
-    }
-    socket.on('enableLatencyCompensation', function () {
-        isLatencyCompensationEnabled = true;
-        document.getElementById("latencyCompensationSwitch").checked = true;
-    });
 
-    $('.latencyLabel').html(latency );
+    //Prende i valori centrali e fa la media, stoppa inoltre l'intervallo.
+    function cleanAndCalc(){
+        //ordino in maniera crescente il vettore.
+        mis.sort(function(a, b){return a-b});
+        let count = 0;
+        sum = 0;
+        max = 0;
+        for(let i= Math.floor(mis.length*3/8); i < Math.floor(mis.length*5/8); i++){
+            sum+= mis[i];
+            count++;
+            console.log( sum + '  ' + mis[i] + '  ' + count);
+        }
+        //Arrotondo la media dei valori centrali.
+        res = sum/(count);
+        goOnLink(res/2000);
+        //stampa latenza
+        console.log('Latency Approx to: ' + Math.round(sum/(count)));
+    }
+
+
+
+
+
+
+    //function to go on the link page
+    let goOnLink = function (latency) {
+        //send the selected device data to the server
+        console.log( window.location.href + "/setLatency");
+        $.ajax({
+            url: window.location.href + "/setLatency",
+            type: 'post',
+            data: {
+                "latency": latency,
+            },
+            success: function (response) {
+                console.log("aaaa");
+                //go on the link data page
+                window.location.href = window.location.href.substring(0, window.location.href.length - 18) + "link";
+            },
+            async: true
+        });
+    }
 </script>
-
-
 </html>

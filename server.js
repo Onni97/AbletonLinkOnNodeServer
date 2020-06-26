@@ -203,8 +203,9 @@ io.on('connection', (socket) => {
         "numPeers": link.getNumPeers(),
         "tempo": link.getTempo(true),
         "startStopSyncEnabled": link.isStartStopSyncEnabled(),
+        "isPlaying": link.isPlaying(),
         "beat": link.getBeat(),
-        "phase": link.getPhase()
+        "quantum": link.getQuantum()
     });
 
     if (latencyCompensation === true)
@@ -226,6 +227,10 @@ io.on('connection', (socket) => {
     })
     socket.on('disconnect', () => {
     });
+    socket.on('setTempo', (msg) => {
+        let tempoInt = parseInt(msg.tempo, 10);
+        link.setTempo(tempoInt);
+    });
 });
 
 
@@ -237,15 +242,16 @@ link.setStartStopCallback((startStopState) => io.emit('playState', startStopStat
 
 //every 6ms the server will send the beat and phase to the clients
 setInterval(() => {
-    io.emit("beatPhase", {
-        "beat": link.getBeat(),
-        "phase": link.getPhase(),
-        "date": Date.now()
+    io.emit("beat", {
+        "beat": link.getBeat()
     });
-}, 5);
+}, 1);
 
 
 //start listening
 server.listen(3000, () => {
     console.log('listening on port 3000');
 });
+
+
+

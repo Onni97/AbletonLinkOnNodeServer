@@ -8,44 +8,10 @@
     <link rel="stylesheet" type="text/css" href="../static/style/styleLink.css"/>
     <script src="/socket.io/socket.io.js"></script>
     <script src="../static/js/jquery-3.4.1.min.js"></script>
-    <script src="../static/jquery-ui.min.js"></script>
-    <script src="../static/jquery.ui.touch-punch.min.js"></script>
     <script src="../static/js/lowLag.js"></script>
     <script src="../static/js/howler.min.js"></script>
     <script src="../static/js/soundmanager2-nodebug-jsmin.js"></script>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
-    <style>
-        .ui-slider {
-            margin-top: 20px;
-            height: 7px;
-            width: 100%;
-            position: relative;
-            border: none;
-            background: #ff5b63;
-        }
-
-        .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
-            background: #ff5b63;
-            border-radius: 25px;
-            outline: none;
-            border: 2px solid #fff;
-            position: absolute;
-            top: -10px;
-        }
-
-        .ui-slider-horizontal .ui-slider-range {
-            background: #e9ecf1
-        }
-
-        #custom-handle {
-            width: 3em;
-            height: 1.6em;
-            top: 50%;
-            margin-top: -.8em;
-            text-align: center;
-            line-height: 1.6em;
-        }
-    </style>
 </head>
 
 <body>
@@ -75,10 +41,26 @@
 
 
 <div class="settings card">
+    <h5>Tempo</h5>
+    <form>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Set new Tempo:</span>
+            </div>
+            <input id="tempoInput" type="number" min="20" max="999" step="0.01" class="form-control" value="20">
+            <div class="input-group-append">
+                <button onclick="setTempo()" class="btn btn-outline-primary" type="button">Set</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div class="settings card">
     <table>
         <tr>
             <td colspan="2">
-                <h4>Audio</h4>
+                <h5>Audio</h5>
             </td>
         </tr>
         <tr>
@@ -94,7 +76,7 @@
         </tr>
         <tr>
             <td colspan="2">
-                <h4>Latency</h4>
+                <h5>Latency</h5>
             </td>
         </tr>
         <tr>
@@ -112,19 +94,26 @@
     </table>
     <div class="row justify-content-center" style="margin-top: 1em;">
         <div class="col-3">
-            <button type="button" id="minusButton" class="btn btn-primary" style="padding-top: 0;padding-bottom: 0.1em;">-</button>
+            <button type="button" id="minusButton" class="btn btn-primary"
+                    style="padding-top: 0;padding-bottom: 0.1em;">-
+            </button>
         </div>
         <div class="col-6" id="latencyRow" style="padding-right: 0; padding-left: 0">
-            <h5 style="margin-bottom: 0; vertical-align:middle; display: inline"><span class="latencyLabel"></span> s</h5>
+            <h5 style="margin-bottom: 0; vertical-align:middle; display: inline"><span class="latencyLabel"></span> s
+            </h5>
         </div>
         <div class="col-3">
-            <button type="button" id="plusButton" class="btn btn-primary" style="padding-top: 0;padding-bottom: 0.1em;">+</button>
+            <button type="button" id="plusButton" class="btn btn-primary" style="padding-top: 0;padding-bottom: 0.1em;">
+                +
+            </button>
         </div>
     </div>
     <input type="range" min="0" max="0.5" step="0.001" id="latencySlider" autocomplete="off">
 </div>
 
+<div id="error">
 
+</div>
 <footer></footer>
 </body>
 
@@ -144,33 +133,12 @@
     //latency that will be set from the server
     let latency = LATENCY_TO_REPLACE;
     let tempo = 120;
-    $(function () {
-        var handle = $("#custom-handle");
-        $("#slider").slider({
-            min: 0,
-            max: 300,
-            step: 1,
-            create: function () {
-                handle.text($(this).slider("value"));
-            },
-            slide: function (event, ui) {
-                handle.text(ui.value);
-                latency = ui.value / 1000;
-                latencyInBeat = (tempo / 60) * (latency);
-                console.log(latency);
-                previousBeep = Math.ceil(previousBeep) - latencyInBeat;
-                $('.latencyLabel').html(latency);
-            }
-        });
-    });
-
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     //socket
     const socket = io();
 
     //audio parameters
-    let sample;
+    //let sample;
     let isAudioOn = false;
 
     //latency parameters
@@ -181,11 +149,11 @@
 
     //other parameters
     let intBeat = -1;
-    let intPhase = -1;
+    let quantum = 0;
 
     lowLag.init({'urlPrefix': '../static/sounds/'});
     lowLag.load(["sample.mp3", "sample.ogg"], "sample");
-    sample = new Howl({src: ['../static/sounds/sample.mp3'], html5: true});
+    //sample = new Howl({src: ['../static/sounds/sample.mp3'], html5: true});
 
 
     //function to activate dedactivate the audio
@@ -221,7 +189,7 @@
     socket.on('init', function (msg) {
         //manage latency
         tempo = msg.tempo;
-        latency = latency = Math.round(latency*Math.pow(10,3))/Math.pow(10,3);
+        latency = latency = Math.round(latency * Math.pow(10, 3)) / Math.pow(10, 3);
         latencyInBeat = (msg.tempo / 60) * (latency);
         previousBeep = Math.ceil(msg.beat) - latencyInBeat;
 
@@ -229,8 +197,10 @@
         intBeat = Math.floor(msg.beat);
         $('#beat').html(intBeat);
 
-        intPhase = Math.floor(msg.phase);
-        $('#phase').html(intPhase);
+        //set quantum
+        quantum = msg.quantum;
+
+        $('#phase').html(intBeat % quantum);
 
         $('#tempo').html(msg.tempo);
     });
@@ -241,7 +211,6 @@
         //update the parameters for latency
         tempo = msg;
         latencyInBeat = (msg / 60) * (latency);
-        console.log(latency);
         previousBeep = Math.ceil(previousBeep) - latencyInBeat;
 
         //update tempo in the page
@@ -249,16 +218,7 @@
     });
 
     //received beat and phase
-    socket.on('beatPhase', function (msg) {
-        //Ricalibro con "date"
-        //let val = ((Date.now() - msg.date))/1000;
-        /*if(val > 0){
-          msg.beat = msg.beat + val*tempo/60;
-          // %4 sarebbe in realtà modulo quanto è il tempo 4/4 in questo caso
-          msg.phase = (msg.phase + val*tempo/60)%4;
-        }*/
-        //$('#tempo').html(tempo + ' ' + val);
-        //console.log(val + ' ' + (val*tempo/60));
+    socket.on('beat', function (msg) {
         //if the beat is changed
         if ((Math.floor(msg.beat) !== intBeat)) {
             //blink
@@ -270,26 +230,31 @@
             //update the page
             intBeat = Math.floor(msg.beat);
             $('#beat').html(intBeat);
-
+            $('#phase').html(intBeat % quantum);
         }
 
         //play the sample before the exact beat of the latency amount
-        //console.log(previousBeep);
         if ((msg.beat > previousBeep + 1)) {
             previousBeep++;
             //previousBeep è aumentato di 1
-            if (isLatencyCompensationEnabled === true && (Math.abs(msg.beat - previousBeep) < ((tempo / 60) * 0.01))) {
+            if (isLatencyCompensationEnabled === true) {
                 beep();
             }
         }
-
-        //update the phase
-        if (Math.floor(msg.phase) !== intPhase) {
-            intPhase = Math.floor(msg.phase);
-            $('#phase').html(intPhase);
-        }
     });
 
+    //function to change tempo on the Link session
+    let setTempo = function () {
+        let tempoInput = $('#tempoInput');
+        let newTempo = tempoInput.val();
+        if (newTempo < 20 || newTempo > 999) {
+            document.getElementById("tempoInput").reportValidity();
+        } else {
+            socket.emit("setTempo", {
+                "tempo": newTempo
+            })
+        }
+    }
 
     //functions to disable/enable latency compensation
     let disableLatencyCompensation = function () {
@@ -315,25 +280,24 @@
         latencyInBeat = (tempo / 60) * (latency);
         previousBeep = Math.ceil(previousBeep) - latencyInBeat;
         $('.latencyLabel').html(latency);
-        console.log(latency);
     }
     let minusButton = document.getElementById("minusButton");
     minusButton.onclick = function () {
         latency = latency - 0.001;
-        latency = Math.round(latency*Math.pow(10,3))/Math.pow(10,3);
+        latency = Math.round(latency * Math.pow(10, 3)) / Math.pow(10, 3);
         latencyInBeat = (tempo / 60) * (latency);
         previousBeep = Math.ceil(previousBeep) - latencyInBeat;
         $('.latencyLabel').html(latency);
-        console.log(latency);
+        $('#latencySlider').val(latency);
     }
     let plusButton = document.getElementById("plusButton");
     plusButton.onclick = function () {
         latency = latency + 0.001;
-        latency = Math.round(latency*Math.pow(10,3))/Math.pow(10,3);
+        latency = Math.round(latency * Math.pow(10, 3)) / Math.pow(10, 3);
         latencyInBeat = (tempo / 60) * (latency);
         previousBeep = Math.ceil(previousBeep) - latencyInBeat;
         $('.latencyLabel').html(latency);
-        console.log(latency);
+        $('#latencySlider').val(latency);
     }
 </script>
 

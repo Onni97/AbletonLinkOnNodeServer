@@ -219,6 +219,7 @@
 
     //received beat and phase
     socket.on('beat', function (msg) {
+
         //if the beat is changed
         if ((Math.floor(msg.beat) !== intBeat)) {
             //blink

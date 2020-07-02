@@ -1,0 +1,40 @@
+{
+    "iPhone 5s": {
+        "iOS 12.4.4": {
+            "Chrome": 36,
+            "Safari": 0
+        }
+    },
+    "Huawei P20 Pro":{
+        "Android 9(9.1.0.387)":{
+            "Chrome": 187.5
+        }
+    },
+    "Huawei Mate10 Lite":{
+        "Android 8(8.0.0.342)":{
+            "Chrome": 185
+        }
+    },
+    "iPad Air 2019":{
+        "iOS 13.4.3":{
+            "Safari": 23
+        }
+    },
+    "Huawei P20 Lite":{
+        "Android 9(9.1.0.306)":{
+            "Chrome": 195,
+            "Firefox": 172
+        }
+    },
+    "Asus Z00AD":{
+        "Android 5.0":{
+            "Chrome": 310.5
+        }
+    },
+    "iPhone 7":{
+        "iOS 13.3":{
+            "Chrome": 63,
+            "Safari": 54
+       }
+    }
+}

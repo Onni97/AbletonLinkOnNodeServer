@@ -4,6 +4,11 @@
     </div>
 </div>
 
+<div class="row" style="margin-bottom: 1em">
+    <div class="col">
+        <h4>If you have a PC click here:</h4>
+    </div>
+</div>
 
 <div class="row">
     <div class="col colCard d-flex align-items-center">
@@ -14,15 +19,32 @@
             </div>
         </div>
     </div>
+</div>
 
-   <div class="col colCard d-flex align-items-center">
-       <div class="card mx-auto" onclick="clicked('Mobile')">
-           <img class="card-img-top" src="/static/images/mobile.svg" alt="Card image cap">
-           <div class="card-body">
-               <h4 class="card-title">Mobile</h4>
-           </div>
-       </div>
-   </div>
+<div class="row" style="margin-bottom: 1em">
+    <div class="col">
+        <h4>If you're on Mobile/tablet select your or measure your latency</h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col colCard d-flex align-items-center">
+        <div class="card mx-auto" onclick="clicked('Mobile')">
+            <img class="card-img-top" src="/static/images/mobile.svg" alt="Card image cap">
+            <div class="card-body">
+                <h4 class="card-title">Select</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="col colCard d-flex align-items-center">
+        <div class="card mx-auto" onclick="latencyMeasurement()">
+            <img class="card-img-top" src="/static/images/ruler.svg" alt="Card image cap">
+            <div class="card-body">
+                <h4 class="card-title">Measure</h4>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="application/javascript">
@@ -37,6 +59,11 @@
             device.isPC = false;
             changeSelection(window.location.href + "deviceSelectModel");
         }
+    }
+
+    //function to pass to latency measurement
+    function latencyMeasurement() {
+        window.location.href = window.location.href + "latencyMeasurement";
     }
 </script>
 

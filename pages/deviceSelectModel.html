@@ -7,7 +7,7 @@
     //function to go to the next subpage
     function clicked(choice) {
         device.model = choice;
-        changeSelection(window.location.href + "deviceSelectVersion?vendor=" + device.vendor + "&model=" + choice);
+        changeSelection(window.location.href + "deviceSelectVersion?model=" + choice);
     }
 </script>
 
@@ -18,13 +18,11 @@
             <h5 class="card-title">&larr; Go Back</h5>
         </div>
     </div>
+</div>
+
+<div class="row" style="margin-bottom: 2em">
     <div class="col">
         <h1>Select your Mobile/Tablet</h1>
-    </div>
-    <div class="card noPhoto hidden">
-        <div class="card-body">
-            <h5 class="card-title"><- Go Back</h5>
-        </div>
     </div>
 </div>
 
@@ -40,7 +38,7 @@
 <!-- The container will be filled with ajax for the infinite scroll -->
 <div class="row" id="container"></div>
 <img id="loader" src="static/images/loader2.gif" alt="loader"/>
-<h3 hidden id="finish">No more devices</h3>
+<h3 hidden id="finish"></h3>
 
 
 <script type="application/javascript">
@@ -101,7 +99,7 @@
                             $('#finish').removeAttr('hidden');
                             contentFinished = true;
                         } else {
-                            toInsert += '<div class="col colCard d-flex align-items-center">\n' +
+                            toInsert += '<div class="col-sm colCard d-flex align-items-center">\n' +
                                 '        <div class="card noPhoto mx-auto" onclick="clicked(\'' + item + '\')">\n' +
                                 '            <div class="card-body">\n' +
                                 '                <h5 class="card-title">' + item + '</h5>\n' +

@@ -1,10 +1,6 @@
 # AbletonLinkOnNodeServer
 
-A Node server that uses the Ableton Link protocol, implemented using [abletonlink-node-addon](https://github.com/Onni97/abletonlink-node-addon).
-
-It serves a page to see the data of the Ableton Link session that is running on the same Wi-Fi.
-
-The page will play a sound on the beat change, compensating the device latency.
+Preliminar study of the integration of Ableton Link in Web Audio
 
 
 ## Tested Env
@@ -39,6 +35,8 @@ npm install -g windows-buil-tools
     * [Ableton Link](https://github.com/ableton/link)
 * [express](https://expressjs.com)
 * [socket.io](https://socket.io)
+* body-parser
+* express-session
 
 
 ## Setup
@@ -64,5 +62,5 @@ http://*IP*:3000/
 ## License
 MIT
 
-## Thanks
-- [Superpowered](https://superpowered.com/) for the audio latency table
+## Author
+Me, [Alessandro Oniarti](https://github.com/Onni97)

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Link</title>
+    <link rel="stylesheet" type="text/css" href="../static/style/bootstrap-4.4.1.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/style/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/style/styleDeviceSelect.css"/>
+    <script src="../static/js/jquery-3.4.1.min.js"></script>
+    <script src="../static/js/p5.min.js"></script>
+    <script src="../static/js/p5.sound.min.js"></script>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
+</head>
+<body>
+
+<footer></footer>
+</body>
+
+
+<script type="application/javascript">
+    //get the footer
+    $.ajax({
+        url: window.location.href.substring(0, window.location.href.length - 18) + "footer",
+        type: 'get',
+        success: function (response) {
+            //add response in the footer
+            $('footer').html(response);
+        },
+        async: true
+    });
+
+
+
+
+    /*
+Nuovo metodo:
+Appare il bottone.
+M cicli.
+Ad ogni ciclo:
+              *  Per 1.5s circa salvo varie misurazioni del
+                 del livello di rumore della stanza e ne salvo
+                 poi la media (in extlevel).
+              *  Synth fa partire una nota. Salvo il tempo.
+              *  Ascolto il livello => Se l'amplitude aumenta
+                 di almeno thr (level - extlevel > thr) la
+                 la nota è stata recepita.
+                 Calcolo il deta in tempo. Questo rappresenta
+                 un RTT, il valore viene inserito in un array
+                 di misurazioni (mis);
+
+Al termine degli M cicli:
+              *  Le misurazioni vengono ordinate (mis.sort())
+              *  I valori centrali da 3/8*M a 5/8*M sono presi
+                 e ne viene fatta la media => questa è la
+                 latenza stimata.
+*/
+
+
+    //n° misurazioni
+    const M = 10;
+    //Nell'ordine microfono, bottone e oscillator
+    let mic, calcButton, osc;
+    //Tempo di inizio della nota
+    let initTime = -1;
+    //Tempo al quale viene percepita
+    let finishTime = -1;
+    //Rispettivamente livello del microfono quando sta suonando e quando sta ascoltando (media di extlevels).
+    let level = 0;
+    let extlevel = 0;
+    //Tempo inizio misurazione livello ambiente.
+    let startTime = Date.now();
+
+    //valore della latenza.
+    let latency = 0;
+    //booleano per sapere se sta venendo riprodotto il suono o meno
+    let playing = false;
+    //n => misurazioni fatte, sum => somma misurazioni centrali
+    let n, sum;
+    //array delle misurazioni
+    let mis = [];
+    //Conterrà il valore finale.
+    let res = 'Nada';
+    //Conterrà l'intervallo (necessario per clear interval).
+    let interval;
+    //array misurazioni ambiente e somma delle stesse.
+    let extlevels = [];
+    let sumlevels;
+    //audioContext
+    let audioCtx;
+    //Threshold variazione volume.
+    let thr = 0.01;
+
+    //value
+    const freq = 440;
+
+    let filter;
+    let widthfilter = 50;
+
+    function setup() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext) ();
+
+        //Inizialmente 0 misurazioni e 0 per la somma.
+        n=0;
+        sum = 0;
+        createCanvas(400, 200);
+
+        //MicInput
+        mic = new p5.AudioIn();
+        mic.start();
+
+
+        //Creo il bottone.
+        calcButton = createButton('Start Calculation');
+        calcButton.addClass("btn btn-primary startMeasurement");
+        calcButton.hide();
+
+        //Oscillatore per produrre il suono
+        osc = new p5.Oscillator('sine');
+        //Nota assegnata
+        osc.freq(freq);
+        //Amplitude massima
+        osc.amp(1);
+
+        //filter = new p5.BandPass();
+        //filter.set(freq,widthfilter);
+        //mic.connect(filter);
+        //Sostituire con touchStarted per i telefoni
+        calcButton.mousePressed(() => {
+            audioCtx.resume();
+            calcButton.hide();
+            n=0;
+            mis = [];
+            //ogni 4s manda un ciclo di misurazione
+            interval = setInterval( () =>{
+                if(n < M){
+                    extlevels = [];
+                    sum = 0;
+                    //stoppo il synth (double call, dovrebbe essersi già stoppato).
+                    osc.stop(0);
+                    //Booleano per segnalare che stia andando.
+                    playing = true;
+                    //Tempo inizio playing dell'oscillator
+                    initTime = Date.now();
+                    osc.start(0);
+                }
+            }, 5000);
+        });
+        //sampleRate(44100);
+        //frameRate(36000);
+
+        //timeout per rumore iniziale della stanza
+        setTimeout(() =>{
+            calcButton.show();
+        }, 3000);
+        //mic.connect(osc);
+        startTime = Date.now();
+    }
+
+    function draw() {
+        background(243,242,242);
+        fill('black');
+        textSize(width/16);
+        text('\n\nMisurazioni: ' + n, width/16, height/2);
+        //Per 2s ascolto il rumore della stanza.
+        if((Date.now() - startTime) > 1500 && (Date.now() - startTime) < 3000){
+            extlevels.push(mic.getLevel());
+            sum += extlevels[extlevels.length - 1];
+            extlevel = sum / extlevels.length;
+            calcButton.hide();
+        }
+        else if(playing){
+            extlevels = [];
+            //console.log(extlevel);
+            calcButton.hide();
+            //console.log('Ext Level ' + extlevel);
+            //calcolo livello attuale.
+            level = mic.getLevel();
+            //console.log('Interno ' + level);
+            //console.log('Diff ' + (level - extlevel));
+
+            //se level è aumentato di almeno thr => nota tornata.
+            if((level - extlevel) > thr){
+                //fermo l'oscillator => playing = false.
+                osc.stop(0);
+                //Fermo ciclo per non considerarlo
+                playing = false;
+                //Tempo di fine.
+                finishTime = Date.now();
+                //ristetto i tempi di ascolto.
+                startTime = Date.now();
+                //calcolo latenza.
+                latency = finishTime - initTime;
+                //console.log('\nLatency ' + n + ' : ' + latency);
+                //Se superiore a 1000 o minore di 5 non lo considero, errori vari.
+                if(latency < 1000 && latency > 5){
+                    mis[n] = latency;
+                    n++;
+                }
+                //Se ho già M misurazioni => fine procedura.
+                if(n === M){
+                    //n=0;
+                    osc.stop(0);
+                    calcButton.show();
+                    //Chiamo funzione finale
+                    cleanAndCalc();
+                    //rimuove chiamata all'intervallo
+                    clearInterval(interval);
+                    console.log("Interval Cleared");
+                }
+            }
+        }
+        text('Ext Level: ' + extlevel, width/32, height/3);
+        text('\nInt Level: ' + level, width/32, height/3);
+    }
+
+    //Prende i valori centrali e fa la media, stoppa inoltre l'intervallo.
+    function cleanAndCalc(){
+        //ordino in maniera crescente il vettore.
+        mis.sort(function(a, b){return a-b});
+        let count = 0;
+        sum = 0;
+        max = 0;
+        for(let i= Math.floor(mis.length*3/8); i < Math.floor(mis.length*5/8); i++){
+            sum+= mis[i];
+            count++;
+            console.log( sum + '  ' + mis[i] + '  ' + count);
+        }
+        //Arrotondo la media dei valori centrali.
+        res = sum/(count);
+        goOnLink(res/2000);
+        //stampa latenza
+        console.log('Latency Approx to: ' + Math.round(sum/(count)));
+    }
+
+
+
+
+
+
+    //function to go on the link page
+    let goOnLink = function (latency) {
+        //send the selected device data to the server
+        console.log( window.location.href + "/setLatency");
+        $.ajax({
+            url: window.location.href + "/setLatency",
+            type: 'post',
+            data: {
+                "latency": latency,
+            },
+            success: function (response) {
+                console.log("aaaa");
+                //go on the link data page
+                window.location.href = window.location.href.substring(0, window.location.href.length - 18) + "link";
+            },
+            async: true
+        });
+    }
+</script>
+</html>

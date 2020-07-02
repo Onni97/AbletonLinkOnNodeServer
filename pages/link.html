@@ -9,6 +9,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="../static/js/jquery-3.4.1.min.js"></script>
     <script src="../static/js/lowLag.js"></script>
+    <script src="../static/js/howler.min.js"></script>
     <script src="../static/js/soundmanager2-nodebug-jsmin.js"></script>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
     <link rel="icon" href="../static/images/icon.ico"/>
@@ -41,7 +42,28 @@
 
 
 <div class="settings card">
+    <h5>Tempo</h5>
+    <form>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Set new Tempo:</span>
+            </div>
+            <input id="tempoInput" type="number" min="20" max="999" step="0.01" class="form-control" value="20">
+            <div class="input-group-append">
+                <button onclick="setTempo()" class="btn btn-outline-primary" type="button">Set</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div class="settings card">
     <table>
+        <tr>
+            <td colspan="2">
+                <h5>Audio</h5>
+            </td>
+        </tr>
         <tr>
             <td class="colSettingDescription">
                 Audio
@@ -51,6 +73,11 @@
                     <input type="checkbox" id="audioSwitch" onclick="audioToggle()" autocomplete="off">
                     <span class="slider round"></span>
                 </label>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <h5>Latency</h5>
             </td>
         </tr>
         <tr>
@@ -66,11 +93,28 @@
             </td>
         </tr>
     </table>
-
-
+    <div class="row justify-content-center" style="margin-top: 1em;">
+        <div class="col-3">
+            <button type="button" id="minusButton" class="btn btn-primary"
+                    style="padding-top: 0;padding-bottom: 0.1em;">-
+            </button>
+        </div>
+        <div class="col-6" id="latencyRow" style="padding-right: 0; padding-left: 0">
+            <h5 style="margin-bottom: 0; vertical-align:middle; display: inline"><span class="latencyLabel"></span> s
+            </h5>
+        </div>
+        <div class="col-3">
+            <button type="button" id="plusButton" class="btn btn-primary" style="padding-top: 0;padding-bottom: 0.1em;">
+                +
+            </button>
+        </div>
+    </div>
+    <input type="range" min="0" max="0.5" step="0.001" id="latencySlider" autocomplete="off">
 </div>
 
+<div id="error">
 
+</div>
 <footer></footer>
 </body>
 
@@ -87,26 +131,30 @@
         async: true
     });
 
+    //latency that will be set from the server
+    let latency = LATENCY_TO_REPLACE;
+    let tempo = 120;
+
     //socket
     const socket = io();
 
     //audio parameters
-    let sample;
+    //let sample;
     let isAudioOn = false;
 
     //latency parameters
     let isLatencyCompensationEnabled;
     let latencyInBeat;
     let previousBeep = -1;
-    //latency that will be set from the server
-    let latency = LATECY_TO_REPLACE;
+
 
     //other parameters
     let intBeat = -1;
-    let intPhase = -1;
+    let quantum = 0;
 
     lowLag.init({'urlPrefix': '../static/sounds/'});
     lowLag.load(["sample.mp3", "sample.ogg"], "sample");
+    //sample = new Howl({src: ['../static/sounds/sample.mp3'], html5: true});
 
 
     //function to activate dedactivate the audio
@@ -132,6 +180,7 @@
     //function to play the sample if audio is on
     function beep() {
         if (isAudioOn === true) {
+            //sample.play();
             lowLag.play('sample');
         }
     }
@@ -140,15 +189,19 @@
     //init of socket.io
     socket.on('init', function (msg) {
         //manage latency
-        latencyInBeat = (msg.tempo / 60) * latency;
+        tempo = msg.tempo;
+        latency = latency = Math.round(latency * Math.pow(10, 3)) / Math.pow(10, 3);
+        latencyInBeat = (msg.tempo / 60) * (latency);
         previousBeep = Math.ceil(msg.beat) - latencyInBeat;
 
         //update values
         intBeat = Math.floor(msg.beat);
         $('#beat').html(intBeat);
 
-        intPhase = Math.floor(msg.phase);
-        $('#phase').html(intPhase);
+        //set quantum
+        quantum = msg.quantum;
+
+        $('#phase').html(intBeat % quantum);
 
         $('#tempo').html(msg.tempo);
     });
@@ -157,7 +210,8 @@
     //when tempo change
     socket.on('tempo', function (msg) {
         //update the parameters for latency
-        latencyInBeat = (msg / 60) * latency;
+        tempo = msg;
+        latencyInBeat = (msg / 60) * (latency);
         previousBeep = Math.ceil(previousBeep) - latencyInBeat;
 
         //update tempo in the page
@@ -165,36 +219,44 @@
     });
 
     //received beat and phase
-    socket.on('beatPhase', function (msg) {
+    socket.on('beat', function (msg) {
+
         //if the beat is changed
-        if (Math.floor(msg.beat) !== intBeat) {
+        if ((Math.floor(msg.beat) !== intBeat)) {
             //blink
             blink();
-            //play the sample if latency compensation is enabled
+            //play the sample if latency compensation is disabled
             if (isLatencyCompensationEnabled === false) {
                 beep();
             }
             //update the page
             intBeat = Math.floor(msg.beat);
             $('#beat').html(intBeat);
-
+            $('#phase').html(intBeat % quantum);
         }
 
         //play the sample before the exact beat of the latency amount
-        if (msg.beat > previousBeep + 1) {
+        if ((msg.beat > previousBeep + 1)) {
             previousBeep++;
+            //previousBeep è aumentato di 1
             if (isLatencyCompensationEnabled === true) {
                 beep();
             }
         }
-
-        //update the phase
-        if (Math.floor(msg.phase) !== intPhase) {
-            intPhase = Math.floor(msg.phase);
-            $('#phase').html(intPhase);
-        }
     });
 
+    //function to change tempo on the Link session
+    let setTempo = function () {
+        let tempoInput = $('#tempoInput');
+        let newTempo = tempoInput.val();
+        if (newTempo < 20 || newTempo > 999) {
+            document.getElementById("tempoInput").reportValidity();
+        } else {
+            socket.emit("setTempo", {
+                "tempo": newTempo
+            })
+        }
+    }
 
     //functions to disable/enable latency compensation
     let disableLatencyCompensation = function () {
@@ -211,6 +273,34 @@
         isLatencyCompensationEnabled = true;
         document.getElementById("latencyCompensationSwitch").checked = true;
     });
+
+    $('.latencyLabel').html(latency);
+    $('#latencySlider').val(latency);
+    var slider = document.getElementById("latencySlider");
+    slider.oninput = function () {
+        latency = this.value;
+        latencyInBeat = (tempo / 60) * (latency);
+        previousBeep = Math.ceil(previousBeep) - latencyInBeat;
+        $('.latencyLabel').html(latency);
+    }
+    let minusButton = document.getElementById("minusButton");
+    minusButton.onclick = function () {
+        latency = latency - 0.001;
+        latency = Math.round(latency * Math.pow(10, 3)) / Math.pow(10, 3);
+        latencyInBeat = (tempo / 60) * (latency);
+        previousBeep = Math.ceil(previousBeep) - latencyInBeat;
+        $('.latencyLabel').html(latency);
+        $('#latencySlider').val(latency);
+    }
+    let plusButton = document.getElementById("plusButton");
+    plusButton.onclick = function () {
+        latency = latency + 0.001;
+        latency = Math.round(latency * Math.pow(10, 3)) / Math.pow(10, 3);
+        latencyInBeat = (tempo / 60) * (latency);
+        previousBeep = Math.ceil(previousBeep) - latencyInBeat;
+        $('.latencyLabel').html(latency);
+        $('#latencySlider').val(latency);
+    }
 </script>
 
 

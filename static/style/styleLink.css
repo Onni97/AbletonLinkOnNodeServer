@@ -23,14 +23,22 @@
     background-color: white;
 }
 
-.active {
+.blink.active {
     background-color: greenyellow;
 }
 
 .settings {
-    width: max-content;
-    margin: 2em auto 5em;
+    width: 22em;
+    margin: 2em auto 0;
     padding: 20px;
+}
+
+.settings:last-child {
+    margin-bottom: 5em;
+}
+
+table {
+    width: 100%;
 }
 
 td {
@@ -101,6 +109,71 @@ input:checked + .slider:before {
 }
 
 
+#latencySlider {
+    margin-top: 1.5em;
+    text-align: center;
+}
+input[type=range]{
+    -webkit-appearance: none;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    height: 5px;
+    background: #ddd;
+    border: none;
+    border-radius: 3px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #2196f3;
+    margin-top: -5px;
+}
+
+input[type=range]:focus {
+    outline: none;
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #ccc;
+}
+
+
+input[type=range]{
+    /* fix for FF unable to apply focus style bug  */
+    border: 1px solid white;
+}
+
+input[type=range]::-moz-range-track {
+    height: 5px;
+    background: #ddd;
+    border: none;
+    border-radius: 3px;
+}
+
+input[type=range]::-moz-range-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #2196f3;
+}
+
+/*hide the outline behind the border*/
+input[type=range]:-moz-focusring{
+    outline: 1px solid white;
+    outline-offset: -1px;
+}
+
+input[type=range]:focus::-moz-range-track {
+    background: #ccc;
+}
+
+
 
 
 
@@ -132,5 +205,18 @@ input:checked + .slider:before {
     .settings table {
         margin-right: auto;
         margin-left: auto;
+    }
+
+    .main {
+        margin-top: 2em;
+    }
+
+    #latencyRow {
+        flex: 0 0 41.666667%;
+        max-width: 41.666667%;
+    }
+    .col-3 {
+        padding-right: 0;
+        padding-left: 0;
     }
 }

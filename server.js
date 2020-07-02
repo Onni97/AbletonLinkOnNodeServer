@@ -4,8 +4,13 @@ const app = express();
 const http = require('http').createServer(app);
 const fs = require('fs');
 const session = require('express-session');
-
+const options = {
+    key: fs.readFileSync(__dirname + '/resources/key.pem'),
+    cert: fs.readFileSync(__dirname + '/resources/cert.pem')
+};
+const https = require("https");
 app.use('/static', express.static(__dirname + '/static'));
+let server = https.createServer(options, app);
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(session({
@@ -15,8 +20,11 @@ app.use(session({
 }));
 
 
-//load device-latencies.json file
-let deviceLatencies = require(__dirname + '/resources/device-latencies.json');
+//load device-latencies.json file (Superpowered)
+//let deviceLatencies = require(__dirname + '/resources/device-latencies.json');
+
+//load device-latencies.json file (Superpowered)
+let deviceLatencies = require(__dirname + '/resources/devicesNew.json');
 
 
 //the initial page allows to select the device
@@ -85,15 +93,69 @@ app.get('/deviceSelectVersion', (req, res) => {
     });
 });
 
+//subpage to select the browser
+app.get('/deviceSelectBrowser', (req, res) => {
+    //load the html file
+    fs.readFile(__dirname + '/pages/deviceSelectBrowser.html', function (err, data) {
+        if (err) {
+            console.log(err);
+            res.sendStatus(500);
+        } else {
+            //get the selected model and version from the url
+            let keys = Object.keys(deviceLatencies[req.query.model][req.query.version]);
+            //insert the browsers in the page and then return the generated file
+            let stringToInsert = "";
+            keys.forEach(function (item) {
+                stringToInsert += '<div class="col colCard d-flex align-items-center">\n' +
+                    '        <div class="card noPhoto mx-auto" onclick="clicked(\'' + item + '\')">\n' +
+                    '            <div class="card-body">\n' +
+                    '                <h5 class="card-title">' + item + '</h5>\n' +
+                    '            </div>\n' +
+                    '        </div>\n' +
+                    '    </div>';
+            })
+            let page = data.toString().replace("TO_REPLACE", stringToInsert);
+            res.send(page);
+        }
+    });
+});
+
+//method for the superPowered table
 //method to confirm the choice and store the related latency in the session
+//app.post('/setDevice', (req, res) => {
+//    req.session.isMeasured = false;
+//    if (req.body.isPC === "true") {
+//        req.session.deviceLatency = 0;
+//        res.sendStatus(200);
+//    } else {
+//        req.session.deviceLatency = deviceLatencies[req.body.model][req.body.version] / 2000;
+//        res.sendStatus(200);
+//    }
+//});
+
+//method for our table
 app.post('/setDevice', (req, res) => {
     if (req.body.isPC === "true") {
+        req.session.isMeasured = false;
         req.session.deviceLatency = 0;
         res.sendStatus(200);
     } else {
-        req.session.deviceLatency = deviceLatencies[req.body.model][req.body.version] / 2000;
+        req.session.isMeasured = true;
+        req.session.deviceLatency = deviceLatencies[req.body.model][req.body.version][req.body.browser] / 1000;
         res.sendStatus(200);
     }
+});
+
+//the page to measure tha latency
+app.get('/latencyMeasurement', (req, res) => {
+    res.sendFile(__dirname + '/pages/latencyMeasurement.html');
+});
+
+//method to get the latency from the latency measurement page and store it in the session
+app.post('/latencyMeasurement/setLatency', (req, res) => {
+    req.session.deviceLatency = req.body.latency;
+    req.session.isMeasured = true;
+    res.sendStatus(200);
 });
 
 //the page that shows the link session informations
@@ -110,7 +172,8 @@ app.get('/link', (req, res) => {
                 console.log(err);
                 res.sendStatus(500);
             } else {
-                let page = data.toString().replace("LATECY_TO_REPLACE", deviceLatency);
+                let page = data.toString().replace("LATENCY_TO_REPLACE", deviceLatency);
+                page = page.replace("IS_LATENCY_MEASURED_TO_REPLACE", req.session.isMeasured);
                 res.send(page);
             }
         });
@@ -124,7 +187,7 @@ app.get('/footer', (req, res) => {
 
 
 //SETUP SOCKET.IO
-const io = require('socket.io')(http);
+const io = require('socket.io')(server);
 
 //create Link instance
 const AbletonLink = require("abletonlink-addon");
@@ -140,8 +203,9 @@ io.on('connection', (socket) => {
         "numPeers": link.getNumPeers(),
         "tempo": link.getTempo(true),
         "startStopSyncEnabled": link.isStartStopSyncEnabled(),
+        "isPlaying": link.isPlaying(),
         "beat": link.getBeat(),
-        "phase": link.getPhase()
+        "quantum": link.getQuantum()
     });
 
     if (latencyCompensation === true)
@@ -163,6 +227,10 @@ io.on('connection', (socket) => {
     })
     socket.on('disconnect', () => {
     });
+    socket.on('setTempo', (msg) => {
+        let tempoInt = parseInt(msg.tempo, 10);
+        link.setTempo(tempoInt);
+    });
 });
 
 
@@ -174,14 +242,15 @@ link.setStartStopCallback((startStopState) => io.emit('playState', startStopStat
 
 //every 6ms the server will send the beat and phase to the clients
 setInterval(() => {
-    io.emit("beatPhase", {
-        "beat": link.getBeat(),
-        "phase": link.getPhase()
+    io.emit("beat", {
+        "beat": link.getBeat()
     });
-}, 6);
-
+}, 1);
 
 //start listening
-http.listen(3000, () => {
+server.listen(3000, () => {
     console.log('listening on port 3000');
 });
+
+
+

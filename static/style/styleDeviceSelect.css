@@ -22,6 +22,11 @@
 
 #goBack {
     margin-left: 15px;
+    height: min-content;
+}
+
+#goBack > .card-body {
+    padding: 10px;
 }
 
 #searchModelLabel {
@@ -91,6 +96,11 @@
     visibility: hidden !important;
 }
 
+.startMeasurement {
+    position: relative;
+    margin-right: auto;
+    margin-left: auto;
+}
 
 
 
@@ -113,6 +123,19 @@
     }
 
     #searchModelLabel {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .card {
         width: 100%;
+    }
+    .colCard {
+        width: 100%;
+    }
+
+    #goBack {
+        width: min-content;
     }
 }

@@ -1,13 +1,13 @@
 <script type="application/javascript">
     //function to return to the previous subpage
     function goBack() {
-        changeSelection(window.location.href + "deviceSelectModel");
+        changeSelection(window.location.href + "deviceSelectVersion?model=" + device.model);
     }
 
     //function to confirm the selection and go to the link page
     function clicked(choice) {
-        device.version = choice;
-        changeSelection(window.location.href + "deviceSelectBrowser?model=" + device.model + "&version=" + device.version);
+        device.browser = choice;
+        goOnLink();
     }
 </script>
 
@@ -22,7 +22,7 @@
 
 <div class="row" style="margin-bottom: 2em">
     <div class="col">
-        <h1>Select your OS Version</h1>
+        <h1>Select your Browser</h1>
     </div>
 </div>
 
